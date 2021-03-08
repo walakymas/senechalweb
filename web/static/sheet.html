@@ -28,8 +28,12 @@ skills = []
 passions = []
 
 function refreshdata(id) {
-    $('#pdf').attr('href','../pdf?id='+id)
-    $.get( "../json?id="+id, function( data ) {
+    $.ajax(
+    { url: "https://senechalweb.herokuapp.com//json?id="+id,
+      type: 'GET',
+      crossDomain: true,
+      dataType: 'jsonp',
+      success: function( data ) {
       $('.skill .ui-icon').hide()
       $('#traits .ui-icon-check').hide()
       $('#passions .ui-icon').hide()
@@ -126,33 +130,10 @@ function refreshdata(id) {
             }
          }
      }
-    });
+    }});
 }
   $( function() {
-     $('div.skill .ui-icon').hide()
-     $('#traits .ui-icon-check').hide()
-     $('#passions .ui-icon').hide()
-     $.getJSON( "../json", function( data ) {
-       var items = [];
-       $.each( data, function( key, value ) {
-         items.push( "<option value='"+value+"'>" + key + "</option>" );
-       });
-       $("#char").append(items.join(""))
-       $( "#char" ).selectmenu({
-           change: function( event, data ) {
-                refreshdata(data.item.value)
-           }
-         });
-       $("#char").eq(0).prop('selected',true);
-       refreshdata($("#char").val())
-     });
-     $("button").button()
-     $("#modify").click( function( event ) {
-        $.post( "../modify", {id:$( "#cid" ).val(), json:$( "#json" ).val()},function( data ) {
-            console.log('modified')
-        });
-     } );
-     $("a").button()
+       refreshdata(34);
   } );
   </script>
 </head>
