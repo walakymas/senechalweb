@@ -31,7 +31,7 @@ def get_character(request):
                 data['marks'].append(r[5])
             data['events'] = []
             for r in EventsTable().list(data['char']['memberId']):
-                data['events'].append({'year' : r[3], 'description': r[5], 'glory':r[6]})
+                data['events'].append({'year': r[3], 'description': r[5], 'glory': r[6], 'id': r[0]})
         print(data)
         s = json.dumps(data, indent=4, ensure_ascii=False)
         response = HttpResponse(s)

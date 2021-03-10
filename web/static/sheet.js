@@ -1,4 +1,3 @@
-
 traits = [
     [ 'Chaste', 'Lustful' ],
     [ 'Energetic', 'Lazy' ],
@@ -20,12 +19,7 @@ skills = []
 passions = []
 
 function refreshdata(id) {
-    $.ajax({
-      url: "../json?id="+id,
-      type: 'GET',
-      crossDomain: true,
-      dataType: 'jsonp',
-      success: function( data ) {
+    $.get( "https://senechalweb.herokuapp.com/json?id="+id,function( data ) {
       $('.skill .ui-icon').hide()
       $('#traits .ui-icon-check').hide()
       $('#passions .ui-icon').hide()
@@ -35,48 +29,65 @@ function refreshdata(id) {
 
       $('#name').text(char['name'])
       if  ('url' in char) {
-        $('#charimg').html('<img src="'+char['url']+'"/>')
+        $('#charimg').attr('src',char['url'])
+        $('#charimg').show()
       } else {
-        $('#charimg').html('')
+        $('#charimg').hide()
       }
 
-      $('#left').html('')
-      if ('stats' in char) {
-          $('#left').html('<div class="stats" id="stats"><div>Stats</div>'
-          +'<div>'
-          +'<div><div>Size</div><div>'+char['stats']['siz']+'</div></div>'
-          +'<div><div>Dexterity</div><div>'+char['stats']['dex']+'</div></div>'
-          +'<div><div>Strength</div><div>'+char['stats']['str']+'</div></div>'
-          +'<div><div>Constitution</div><div>'+char['stats']['con']+'</div></div>'
-          +'<div><div>Appearence</div><div>'+char['stats']['app']+'</div></div>'
-          +'</div>'
-          +'<div>'
-          +'<div><div>Damage</div><div>'+Math.round((char['stats']['str']*1+char['stats']['siz']*1)/6)+'d6</div></div>'
-          +'<div><div>Healing Rate</div><div>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1)/10)+'</div></div>'
-          +'<div><div>Move Rate</div><div>'+Math.round((char['stats']['dex']*1+char['stats']['siz']*1)/10)+'</div></div>'
-          +'<div><div>HP</div><div>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1)/6)+'</div></div>'
-          +'<div><div>Unconscious</div><div>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1))+'</div></div>'
-          +'</div>'
-          +'</div>');
+      $('#main').html('')
+      if ('main' in char) {
+          for (const [n, v] of Object.entries(char['main'])) {
+            $('#main').append('<li><span class="gold">'+n+'</span> '+v+'</li>');
+          }
       }
+      $('#left').html('')
+      $('#hp').html('?');
+      if ('stats' in char) {
+          $('#statistics').html(
+          '<li><span class="gold">SIZ</span> '+char['stats']['siz']+'</li>'
+          +'<li><span class="gold">DEX</span> '+char['stats']['dex']+'</li>'
+          +'<li><span class="gold">STR</span> '+char['stats']['str']+'</li>'
+          +'<li><span class="gold">CON</span> '+char['stats']['con']+'</li>'
+          +'<li><span class="gold">APP</span> '+char['stats']['app']+'</li>'
+          +'<li><span class="gold">Damage</span> <em> (STR+SIZ)/6=</em> <strong>'+Math.round((char['stats']['str']*1+char['stats']['siz']*1)/6)+'d6 </strong></li>'
+          +'<li><span class="gold">Healing Rate</span> <em> (STR+CON)/10=</em> <strong>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1)/10)+' </strong></li>'
+          +'<li><span class="gold">Move Rate</span> <em> (STR+DEX)/10=</em> <strong>'+Math.round((char['stats']['dex']*1+char['stats']['siz']*1)/10)+' </strong></li>'
+          +'<li><span class="gold">Total Hitpoints</span> <em> (SIZ+CON)=</em> <strong>'+Math.round((char['stats']['siz']*1+char['stats']['con']*1))+' </strong></li>'
+          +'<li><span class="gold">Unconscious</span> <em> (HP/4)=</em> <strong>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1))+' </strong></li>'
+          );
+          $('#hp').html(Math.round((char['stats']['siz']*1+char['stats']['con']*1)))
+      }
+      $('#events').html('');
+      $('#glory').html('');
+      if ('events' in data) {
+          glory = 0;
+          for (eid in data['events']) {
+
+            event = data['events'][eid];
+            glory+=event['glory'];
+            $('#events').append('<tr><td>'+event['year']+'</td><td>'+event['glory']+'</td><td>'+event['description'].replace(/\n/g, "<br/>")+'</td></tr>')
+          }
+          $('#glory').html(glory);
+      }
+      $('#combat').html('')
+      $('#skills').html('')
       if ('skills' in char) {
           skillcount = 0;
           skills = []
           for (const [sgn, sgv] of Object.entries(char['skills'])) {
-              $('#left').append('<div class="skillgroup"><div>'+sgn+'</div></div>');
               for (const [sn, sv] of Object.entries(sgv)) {
-                  $('#left > div').last().append('<div class="skill" id="skill_'+skillcount+'"><div>'+sn+'</div><div><div>'+sv+'</div><div><span class="ui-icon ui-icon-check"></span></div></div></div>');
+                  $(sgn=='Other'?'#skills':'#combat').append('<li id="skill_'+skillcount+'"><span class="gold">'+sn+'</span> '+sv+'<span class="ui-icon ui-icon-check"></span></li>');
                   skills[skillcount++]='skills.'+sgn+'.'+sn;
               }
           }
       }
       $('#passions').html('')
       if ('passions' in char) {
-          $('#passions').append('<div>Passions</div><div></div>');
           count = 0;
           passions = []
           for (const [pn, pv] of Object.entries(char['passions'])) {
-              $('#passions').last().append('<div class="passion" id="passion_'+count+'"><div>'+pn+'</div><div><div>'+pv+'</div><div><span class="ui-icon ui-icon-check"></span></div></div></div>');
+              $('#passions').append('<li id="passion_'+count+'"><span class="gold">'+pn+'</span> '+pv+'<span class="ui-icon ui-icon-check"></span></li>');
               passions[count++]='passions.'+pn;
           }
       }
@@ -91,14 +102,13 @@ function refreshdata(id) {
       }
       $('#description').html('')
       if ('description' in char) {
-        $('#description').html(char['description'].replace("\n", "<br/>"))
+        $('#description').html(char['description'].replace(/\n/g, "<br/>"))
       }
       $('#longdescription').html('')
       if ('longdescription' in char) {
-        $('#longdescription').html(char['longdescription'].replace("\n", "<br/>"))
+        $('#longdescription').html(char['longdescription'].replace(/\n/g, "<br/>"))
       }
-     $('div.skill .ui-icon').hide()
-     $('#traits .ui-icon-check').hide()
+     $('.ui-icon-check').hide()
      $('#passions .ui-icon').hide()
      if ('marks' in data) {
          for (i in skills) {
@@ -122,8 +132,11 @@ function refreshdata(id) {
             }
          }
      }
-    }});
+    });
 }
   $( function() {
-       refreshdata(34);
+     $('.ui-icon-check').hide();
+     $('#passions .ui-icon').hide();
+     refreshdata(32);
+     setInterval(function (){refreshdata(32)},60000)
   } );

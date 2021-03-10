@@ -117,3 +117,19 @@ ul {
 #skills .ui-icon-check, #combat .ui-icon-check, #passions .ui-icon-check {
     margin-left: 5px
 }
+
+th
+{color:var(--goldHighlight);font-weight:bold;}
+
+#events > tr > td {
+    vertical-align:top;
+}
+#events > tr > td:nth-child(1) {
+    color:var(--goldHighlight);font-weight:bold;
+}
+#events > tr > td:nth-child(2) {
+    text-align: right;
+}
+#events > tr > td:nth-child(3) {
+    text-align: justify;
+}

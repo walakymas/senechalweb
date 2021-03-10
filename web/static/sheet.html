@@ -5,172 +5,17 @@
     <link rel="stylesheet" href="jquery-ui-1.12.1.custom/jquery-ui.css">
     <link rel="stylesheet" href="css/senechal.css">
     <script src="jquery-ui-1.12.1.custom/jquery-ui.js"></script>
-    <script>
-
-traits = [
-    [ 'Chaste', 'Lustful' ],
-    [ 'Energetic', 'Lazy' ],
-    [ 'Forgiving', 'Vengeful' ],
-    [ 'Generous', 'Selfish' ],
-    [ 'Honest', 'Deceitful' ],
-    [ 'Just', 'Arbitrary' ],
-    [ 'Merciful', 'Cruel' ],
-    [ 'Modest', 'Proud' ],
-    [ 'Prudent', 'Reckless' ],
-    [ 'Spiritual', 'Worldly' ],
-    [ 'Temperate', 'Indulgent' ],
-    [ 'Trusting', 'Suspicious' ],
-    [ 'Valorous', 'Cowardly' ],
-    ]
-
-
-skills = []
-passions = []
-
-function refreshdata(id) {
-    $.get( "../json?id="+id,function( data ) {
-      $('.skill .ui-icon').hide()
-      $('#traits .ui-icon-check').hide()
-      $('#passions .ui-icon').hide()
-      char = data.char
-      $( "#cid" ).val(id)
-      $( "#json" ).val(JSON.stringify(char, null, 2))
-
-      $('#name').text(char['name'])
-      if  ('url' in char) {
-        $('#charimg').attr('src',char['url'])
-        $('#charimg').show()
-      } else {
-        $('#charimg').hide()
-      }
-
-      $('#main').html('')
-      if ('main' in char) {
-          for (const [n, v] of Object.entries(char['main'])) {
-            $('#main').append('<li><span class="gold">'+n+'</span> '+v+'</li>');
-          }
-      }
-      $('#left').html('')
-      if ('stats' in char) {
-          $('#statistics').html(
-          '<li><span class="gold">SIZ</span> '+char['stats']['siz']+'</li>'
-          +'<li><span class="gold">DEX</span> '+char['stats']['dex']+'</li>'
-          +'<li><span class="gold">STR</span> '+char['stats']['str']+'</li>'
-          +'<li><span class="gold">CON</span> '+char['stats']['con']+'</li>'
-          +'<li><span class="gold">APP</span> '+char['stats']['app']+'</li>'
-          +'<li><span class="gold">Damage</span> <em> (STR+SIZ)/6=</em> <strong>'+Math.round((char['stats']['str']*1+char['stats']['siz']*1)/6)+'d6 </strong></li>'
-          +'<li><span class="gold">Healing Rate</span> <em> (STR+CON)/10=</em> <strong>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1)/10)+' </strong></li>'
-          +'<li><span class="gold">Move Rate</span> <em> (STR+DEX)/10=</em> <strong>'+Math.round((char['stats']['dex']*1+char['stats']['siz']*1)/10)+' </strong></li>'
-          +'<li><span class="gold">Total Hitpoints</span> <em> (SIZ+CON)=</em> <strong>'+Math.round((char['stats']['siz']*1+char['stats']['con']*1))+' </strong></li>'
-          +'<li><span class="gold">Unconscious</span> <em> (HP/4)=</em> <strong>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1))+' </strong></li>'
-          );
-          $('#hp').html(Math.round((char['stats']['siz']*1+char['stats']['con']*1)))
-      }
-      if ('events' in data) {
-          glory = 0;
-          for (event in data['events']) {
-            glory+=data['events'][event]['glory'];
-          }
-          $('#glory').html(glory);
-      }
-      if ('skills' in char) {
-          skillcount = 0;
-          skills = []
-          for (const [sgn, sgv] of Object.entries(char['skills'])) {
-              for (const [sn, sv] of Object.entries(sgv)) {
-                  $(sgn=='Other'?'#skills':'#combat').append('<li id="skill_'+skillcount+'"><span class="gold">'+sn+'</span> '+sv+'<span class="ui-icon ui-icon-check"></span></li>');
-                  skills[skillcount++]='skills.'+sgn+'.'+sn;
-              }
-          }
-      }
-      $('#passions').html('')
-      if ('passions' in char) {
-          count = 0;
-          passions = []
-          for (const [pn, pv] of Object.entries(char['passions'])) {
-              $('#passions').append('<li id="passion_'+count+'"><span class="gold">'+pn+'</span> '+pv+'<span class="ui-icon ui-icon-check"></span></li>');
-              passions[count++]='passions.'+pn;
-          }
-      }
-      if ('traits' in char) {
-       $('#traits').show();
-         for (const [tn, tv] of Object.entries(char['traits'])) {
-            $('#trait_'+tn+' div:nth-child(2)').text(tv)
-            $('#trait_'+tn+' div:nth-child(6)').text(20-tv*1)
-         }
-      } else {
-       $('#traits').hide();
-      }
-      $('#description').html('')
-      if ('description' in char) {
-        $('#description').html(char['description'].replace("\n", "<br/>"))
-      }
-      $('#longdescription').html('')
-      if ('longdescription' in char) {
-        $('#longdescription').html(char['longdescription'].replace("\n", "<br/>"))
-      }
-     $('.ui-icon-check').hide()
-     $('#passions .ui-icon').hide()
-     if ('marks' in data) {
-         for (i in skills) {
-            if (data['marks'].includes(skills[i].replace(/.*\./g, ""))) {
-                console.log(skills[i])
-                $('#skill_'+i+' .ui-icon').show()
-            }
-         }
-         for (i in passions) {
-            if (data['marks'].includes(passions[i].replace(/.*\./g, ""))) {
-                console.log(passions[i])
-                $('#passion_'+i+' .ui-icon').show()
-            }
-         }
-         for (i in traits) {
-            if (data['marks'].includes(traits[i][0])) {
-              $('#trait_'+traits[i][0].toLowerCase().substring(0,3)+' div.div-table-col:nth-child(1) .ui-icon').show()
-            }
-            if (data['marks'].includes(traits[i][1])) {
-              $('#trait_'+traits[i][0].toLowerCase().substring(0,3)+' div.div-table-col:nth-child(7) .ui-icon:last-child').show()
-            }
-         }
-     }
-    });
-}
-  $( function() {
-     $('.ui-icon-check').hide();
-     $('#passions .ui-icon').hide();
-     refreshdata(32);
-  } );
-  </script>
+    <script src="sheet.js"></script>
 </head>
 <body>
-
 <div class="row">
     <div class="col-1"><h2 id="name">Name</h2>
         <ul id='main'>
-            <li><span class="gold">Age:</span>  #age</li>
-            <li><em>7th son</strong></li>
-            <li><span class="gold">Homeland</span>:  #Homeland</li>
-            <li><span class="gold">Culture</span>:  #Culture</li>
-            <li><span class="gold">Religion</span>:  #Religion</li>
-            <li><span class="gold">Lord:</span>  Lord</li>
-            <li><span class="gold">Current Class: </span> Knight</li>
-            <li><span class="gold">Current Home: </span> Current Home</li>
-            <li><span class="gold">Family Characteristics: </span>FamilyCharacteristics</li>
         </ul>
 
     </div> <!-- 33.33% -->
     <div class="col-1"><h2>Statistics</h2>
         <ul id="statistics">
-            <li><span class="gold">SIZ</span>:  '+char['stats']['siz']+'   </li>
-            <li><span class="gold">DEX:</span>  15</li>
-            <li><span class="gold">STR: </span> 12</li>
-            <li><span class="gold">CON(+3): </span> 11 <em>(Major Wound)</strong></li>
-            <li><span class="gold">APP: </span> 14 <em>(14+1 at start, got wounded)</strong></li>
-            <li><span class="gold">Damage </span><em>(STR+SIZ)/6</em><strong><em> =</em> </strong> <strong>4d6</strong></li>
-            <li><span class="gold">Healing Rate</span> <em>(STR+CON)/10</em><strong><em> =</em>  2</strong></li>
-            <li><span class="gold">Movement Rate</span> <em>(STR+DEX)/10 =</em>  <strong>3</strong></li>
-            <li><span class="gold">Total Hitpoints</span> <em>(SIZ+CON)= </em> <strong>21</strong></li>
-            <li><span class="gold">Unconscious</span> <em>(HP/4)=</em>  <strong>6</strong></li>
         </ul>
 
     </div> <!-- 33.33% -->
@@ -341,6 +186,27 @@ function refreshdata(id) {
         </ul>
     </div>
 </div>
+</div>
+<div class="row">
+    <div class="col-2">
+        <h2>Events</h2>
+        <table>
+            <thead>
+            <tr><th>Year</th><th>Glory</th><th>Description</th></tr>
+            </thead>
+            <tbody id="events">
+            </tbody>
+        </table>
+    </div>
+    <div class="col-1">
+        <h2>??</h2>
+    </div>
+</div>
+<div class="row" id="descriptions">
+    <h2>Description</h2>
+    <span class="contrastedText" id="description"></span>
+    <br/>
+    <span class="contrastedText" id="longdescription"></span>
 </div>
 </body>
 </html>
