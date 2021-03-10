@@ -6,6 +6,7 @@ from django.views.decorators.cache import never_cache
 from character import Character
 from database.charactertable import CharacterTable
 from database.markstable import MarksTable
+from database.eventstable import EventsTable
 
 
 def index(request):
@@ -24,8 +25,13 @@ def get_character(request):
         if 'memberId' in data['char']:
             data['char']['memberId'] = str(data['char']['memberId'])
             data['marks'] = []
-            for r in MarksTable().list(data['char']['memberId'], MarksTable().year()):
+            year = MarksTable().year()
+            print(year)
+            for r in MarksTable().list(data['char']['memberId'], year):
                 data['marks'].append(r[5])
+            data['events'] = []
+            for r in EventsTable().list(data['char']['memberId']):
+                data['events'].append({'year' : r[3], 'description': r[5], 'glory':r[6]})
         print(data)
         s = json.dumps(data, indent=4, ensure_ascii=False)
         response = HttpResponse(s)

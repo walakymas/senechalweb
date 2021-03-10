@@ -21,7 +21,7 @@ passions = []
 
 function refreshdata(id) {
     $.ajax({
-      url: "https://senechalweb.herokuapp.com/json?id="+id,
+      url: "../json?id="+id,
       type: 'GET',
       crossDomain: true,
       dataType: 'jsonp',

@@ -28,12 +28,7 @@ skills = []
 passions = []
 
 function refreshdata(id) {
-    $.ajax(
-    { url: "https://senechalweb.herokuapp.com//json?id="+id,
-      type: 'GET',
-      crossDomain: true,
-      dataType: 'jsonp',
-      success: function( data ) {
+    $.get( "../json?id="+id,function( data ) {
       $('.skill .ui-icon').hide()
       $('#traits .ui-icon-check').hide()
       $('#passions .ui-icon').hide()
@@ -43,48 +38,57 @@ function refreshdata(id) {
 
       $('#name').text(char['name'])
       if  ('url' in char) {
-        $('#charimg').html('<img src="'+char['url']+'"/>')
+        $('#charimg').attr('src',char['url'])
+        $('#charimg').show()
       } else {
-        $('#charimg').html('')
+        $('#charimg').hide()
       }
 
+      $('#main').html('')
+      if ('main' in char) {
+          for (const [n, v] of Object.entries(char['main'])) {
+            $('#main').append('<li><span class="gold">'+n+'</span> '+v+'</li>');
+          }
+      }
       $('#left').html('')
       if ('stats' in char) {
-          $('#left').html('<div class="stats" id="stats"><div>Stats</div>'
-          +'<div>'
-          +'<div><div>Size</div><div>'+char['stats']['siz']+'</div></div>'
-          +'<div><div>Dexterity</div><div>'+char['stats']['dex']+'</div></div>'
-          +'<div><div>Strength</div><div>'+char['stats']['str']+'</div></div>'
-          +'<div><div>Constitution</div><div>'+char['stats']['con']+'</div></div>'
-          +'<div><div>Appearence</div><div>'+char['stats']['app']+'</div></div>'
-          +'</div>'
-          +'<div>'
-          +'<div><div>Damage</div><div>'+Math.round((char['stats']['str']*1+char['stats']['siz']*1)/6)+'d6</div></div>'
-          +'<div><div>Healing Rate</div><div>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1)/10)+'</div></div>'
-          +'<div><div>Move Rate</div><div>'+Math.round((char['stats']['dex']*1+char['stats']['siz']*1)/10)+'</div></div>'
-          +'<div><div>HP</div><div>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1)/6)+'</div></div>'
-          +'<div><div>Unconscious</div><div>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1))+'</div></div>'
-          +'</div>'
-          +'</div>');
+          $('#statistics').html(
+          '<li><span class="gold">SIZ</span> '+char['stats']['siz']+'</li>'
+          +'<li><span class="gold">DEX</span> '+char['stats']['dex']+'</li>'
+          +'<li><span class="gold">STR</span> '+char['stats']['str']+'</li>'
+          +'<li><span class="gold">CON</span> '+char['stats']['con']+'</li>'
+          +'<li><span class="gold">APP</span> '+char['stats']['app']+'</li>'
+          +'<li><span class="gold">Damage</span> <em> (STR+SIZ)/6=</em> <strong>'+Math.round((char['stats']['str']*1+char['stats']['siz']*1)/6)+'d6 </strong></li>'
+          +'<li><span class="gold">Healing Rate</span> <em> (STR+CON)/10=</em> <strong>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1)/10)+' </strong></li>'
+          +'<li><span class="gold">Move Rate</span> <em> (STR+DEX)/10=</em> <strong>'+Math.round((char['stats']['dex']*1+char['stats']['siz']*1)/10)+' </strong></li>'
+          +'<li><span class="gold">Total Hitpoints</span> <em> (SIZ+CON)=</em> <strong>'+Math.round((char['stats']['siz']*1+char['stats']['con']*1))+' </strong></li>'
+          +'<li><span class="gold">Unconscious</span> <em> (HP/4)=</em> <strong>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1))+' </strong></li>'
+          );
+          $('#hp').html(Math.round((char['stats']['siz']*1+char['stats']['con']*1)))
+      }
+      if ('events' in data) {
+          glory = 0;
+          for (event in data['events']) {
+            glory+=data['events'][event]['glory'];
+          }
+          $('#glory').html(glory);
       }
       if ('skills' in char) {
           skillcount = 0;
           skills = []
           for (const [sgn, sgv] of Object.entries(char['skills'])) {
-              $('#left').append('<div class="skillgroup"><div>'+sgn+'</div></div>');
               for (const [sn, sv] of Object.entries(sgv)) {
-                  $('#left > div').last().append('<div class="skill" id="skill_'+skillcount+'"><div>'+sn+'</div><div><div>'+sv+'</div><div><span class="ui-icon ui-icon-check"></span></div></div></div>');
+                  $(sgn=='Other'?'#skills':'#combat').append('<li id="skill_'+skillcount+'"><span class="gold">'+sn+'</span> '+sv+'<span class="ui-icon ui-icon-check"></span></li>');
                   skills[skillcount++]='skills.'+sgn+'.'+sn;
               }
           }
       }
       $('#passions').html('')
       if ('passions' in char) {
-          $('#passions').append('<div>Passions</div><div></div>');
           count = 0;
           passions = []
           for (const [pn, pv] of Object.entries(char['passions'])) {
-              $('#passions').last().append('<div class="passion" id="passion_'+count+'"><div>'+pn+'</div><div><div>'+pv+'</div><div><span class="ui-icon ui-icon-check"></span></div></div></div>');
+              $('#passions').append('<li id="passion_'+count+'"><span class="gold">'+pn+'</span> '+pv+'<span class="ui-icon ui-icon-check"></span></li>');
               passions[count++]='passions.'+pn;
           }
       }
@@ -105,8 +109,7 @@ function refreshdata(id) {
       if ('longdescription' in char) {
         $('#longdescription').html(char['longdescription'].replace("\n", "<br/>"))
       }
-     $('div.skill .ui-icon').hide()
-     $('#traits .ui-icon-check').hide()
+     $('.ui-icon-check').hide()
      $('#passions .ui-icon').hide()
      if ('marks' in data) {
          for (i in skills) {
@@ -130,170 +133,214 @@ function refreshdata(id) {
             }
          }
      }
-    }});
+    });
 }
   $( function() {
-       refreshdata(34);
+     $('.ui-icon-check').hide();
+     $('#passions .ui-icon').hide();
+     refreshdata(32);
   } );
   </script>
 </head>
 <body>
-    <div id="main">
-        <nav>
-            <select name="char" id="char" style="width: 800px;">
-            </select>
-            <div id="charimg"></div>
-            <a id="pdf" href="" target="pdf" >PDF</a>
-            <div id="left"></div>
-        </nav>
-        <section><div id="name"></div></section>
-            <section id="mainstat">
-                <div>
-                    <div id="traits">
-                        <div class="div-table">
-                            <div class="div-table-row">
-                                <div class="div-table-col" ><span class="ui-icon"></span></div>
-                                <div class="div-table-col" > </div>
-                                <div class="div-table-col" ></div>
-                                <div class="div-table-col" ></div>
-                                <div class="div-table-col "></div>
-                                <div class="div-table-col" ></div>
-                                <div class="div-table-col" ><span class="ui-icon"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_cha">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" >Chaste</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col pagan">Lustful</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_ene">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col chivalry pagan">Energetic</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col" >Lazy</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_for">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col chivalry pagan">Forgiving</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col" >Vengeful</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_gen">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col chivalry pagan">Generous</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col" >Selfish</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_hon">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col pagan">Honest</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col" >Deceitful</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_jus">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col chivalry">Just</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col" >Arbitrary</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_mer">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col chivalry">Merciful</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col" >Cruel</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_mod">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col chivalry">Modest</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col pagan">Proud</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_pru">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" >Prudent</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col" >Reckless</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_spi">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" >Spiritual</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col" >Worldly</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_tem">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" >Temperate</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col" >Indulgent</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_tru">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" >Trusting</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col" >Suspicious</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                            <div class="div-table-row" id="trait_val">
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col chivalry">Valorous</div>
-                                <div class="div-table-col" >/</div>
-                                <div class="div-table-col" >Cowardly</div>
-                                <div class="div-table-col" >10</div>
-                                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="passions"></div>
-                </div>
-                <div>
-                    <div id="kinght"></div>
-                </div>
-            </section>
-            <section id="description"></section>
-            <section id="longdescription"></section>
-            <section>
-                <form action="../modify" method="POST">
-                    <input name="id" id="cid" type="hidden"/>
-                    <textarea name="json" id="json"></textarea>
-                </form>
-                <button name="modify" id="modify">Modify</button>
-            </section>
+
+<div class="row">
+    <div class="col-1"><h2 id="name">Name</h2>
+        <ul id='main'>
+            <li><span class="gold">Age:</span>  #age</li>
+            <li><em>7th son</strong></li>
+            <li><span class="gold">Homeland</span>:  #Homeland</li>
+            <li><span class="gold">Culture</span>:  #Culture</li>
+            <li><span class="gold">Religion</span>:  #Religion</li>
+            <li><span class="gold">Lord:</span>  Lord</li>
+            <li><span class="gold">Current Class: </span> Knight</li>
+            <li><span class="gold">Current Home: </span> Current Home</li>
+            <li><span class="gold">Family Characteristics: </span>FamilyCharacteristics</li>
+        </ul>
+
+    </div> <!-- 33.33% -->
+    <div class="col-1"><h2>Statistics</h2>
+        <ul id="statistics">
+            <li><span class="gold">SIZ</span>:  '+char['stats']['siz']+'   </li>
+            <li><span class="gold">DEX:</span>  15</li>
+            <li><span class="gold">STR: </span> 12</li>
+            <li><span class="gold">CON(+3): </span> 11 <em>(Major Wound)</strong></li>
+            <li><span class="gold">APP: </span> 14 <em>(14+1 at start, got wounded)</strong></li>
+            <li><span class="gold">Damage </span><em>(STR+SIZ)/6</em><strong><em> =</em> </strong> <strong>4d6</strong></li>
+            <li><span class="gold">Healing Rate</span> <em>(STR+CON)/10</em><strong><em> =</em>  2</strong></li>
+            <li><span class="gold">Movement Rate</span> <em>(STR+DEX)/10 =</em>  <strong>3</strong></li>
+            <li><span class="gold">Total Hitpoints</span> <em>(SIZ+CON)= </em> <strong>21</strong></li>
+            <li><span class="gold">Unconscious</span> <em>(HP/4)=</em>  <strong>6</strong></li>
+        </ul>
+
+    </div> <!-- 33.33% -->
+    <div class="col-1">
+        <div style="text-align: center"> <img class="Image-Frame" id='charimg' src="" width="200" height="250"> </div>
+    </div> <!-- 33.33% -->
+</div>
+
+<div class="row">
+    <div class="col-1">
+        <div class="FontSizeBig">
+            <span class="gold">GLORY:</span>
+            <span id="glory">?</span>
+        </div>
     </div>
+    <div class="col-1">
+        <div class="FontSizeBig"><img src="https://pappcseperke.hu/wp-content/uploads/2021/02/Codex_Knight_Transparent.png" alt="knight" ></div>
+    </div>
+    <div class="col-1">
+        <div class="FontSizeBig">
+            <span class="gold">HP:</span> <span id="hp">?</span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        <h2>Personality Traits</h2>
+        <div class="div-table traits">
+            <div class="div-table-row" id="trait_cha">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" >Chaste</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col pagan">Lustful</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_ene">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col chivalry pagan">Energetic</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col" >Lazy</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_for">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col chivalry pagan">Forgiving</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col" >Vengeful</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_gen">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col chivalry pagan">Generous</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col" >Selfish</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_hon">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col pagan">Honest</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col" >Deceitful</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_jus">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col chivalry">Just</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col" >Arbitrary</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_mer">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col chivalry">Merciful</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col" >Cruel</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_mod">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col chivalry">Modest</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col pagan">Proud</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_pru">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" >Prudent</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col" >Reckless</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_spi">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" >Spiritual</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col" >Worldly</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_tem">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" >Temperate</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col" >Indulgent</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_tru">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" >Trusting</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col" >Suspicious</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row" id="trait_val">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col chivalry">Valorous</div>
+                <div class="div-table-col" >/</div>
+                <div class="div-table-col" >Cowardly</div>
+                <div class="div-table-col" >10</div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-check"></span></div>
+            </div>
+            <div class="div-table-row">
+                <div class="div-table-col" ><span class="ui-icon ui-icon-blank"></span></div>
+                <div class="div-table-col" > </div>
+                <div class="div-table-col" ></div>
+                <div class="div-table-col" ></div>
+                <div class="div-table-col "></div>
+                <div class="div-table-col" ></div>
+                <div class="div-table-col" ><span class="ui-icon ui-icon-blank"></span></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-1">
+        <h2>Skills</h2>
+        <ul id="skills">
+        </ul>
+    </div>
+    <div class="col-1">
+        <h2>Combat Skills</h2>
+        <ul id="combat">
+        </ul>
+        <h2>Passions</h2>
+        <ul id="passions">
+        </ul>
+    </div>
+</div>
+</div>
 </body>
 </html>

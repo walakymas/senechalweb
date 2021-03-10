@@ -1,138 +1,95 @@
-#char-button {
-    width: 170px;
+/* fonts */
+@import url('https://fonts.googleapis.com/css2?family=Overlock&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Unicase&display=swap');
+
+/*colors*/
+:root {
+--darkGray:#1c1c1c;
+--lightGray:#afafb4;
+--contrastedTextColor:#cccdd1;
+--goldHighlight:#958061;
+--goldHighlight2:#9B8565;
+--blue:#446ac0;
 }
 
-select {
-    width: 180px;
-}
-
+/*text font, main text color, bg color */
 body {
-    background-color: black;
-    color: lightsteelblue;
-    font-size: 14px;
+  font-family: 'Overlock', serif;
+  background-color: var(--darkGray);
+  color:var(--lightGray);
+  font-size: 1.2em;
 }
 
-#json {
-    width: 100%;
-    height: 300px;
+/*box sizing - making sure that the padding and border are included in the total width and height of the elements*/
+* {
+  box-sizing: border-box;
 }
 
-#main {
-    /* width: 100%; */
-    max-width: 800px;
-    position: relative;
-}
+/* defining column widths */
+.col-1 {width: 33.33%;}
+.col-2 {width: 66.66%;}
+.col-3 {width: 100%;}
 
-#main > nav {
-  position: absolute;
-  left: 0px;
-  width: 200px;
-  text-align:center;
-}
-
-#main > section {
-  margin-left: 200px;
-  text-align: justify;
-}
-
-
-#charimg {
-    height: 200px;
-    width: 200px;
-}
-
-#charimg img {
-    object-fit: contain;
-    width:100%;
-    height:100%;
-}
-
-#name {
-    text-align:center;
-    color: white;
-    font-family:fantasy;
-    font-size: xx-large;
-}
-
-.ui-widget {
-    font-size: 14px
-}
-
-
-#stats > div{
-  width: 190px;
-  /* margin-left: 5px */
-}
-
-#stats > div:first-child{
-  font-size: 18px;
-  font-weight: bold;
-  color: white;
-  text-align: left;
-}
-
-#stats > div > div{
-  display:flex;
-  width: 100%;
-}
-
-#stats > div:last-child{
-  margin-top: 5px;
-}
-
-#stats > div> div > div{
-  width: 100%;
-  text-align: left;
-}
-
-#stats > div> div > div:last-child{
-  float: right;
-  width: 40px;
-  text-align:right;
-  margin-right:5px;
-}
-
-.skillgroup {
-  width: 200px;
-  margin-top: 10px;
-  /* margin-left: 5px */
-}
-
-.skillgroup > div {
-  width: 190px;
-  display:flex;
-}
-
-.skillgroup > div:first-child  {
-  font-size: 18px;
-  font-weight: bold;
-  color: white;
-  text-align: center;
-  width: 100%;
-}
-
-.skillgroup > div> div{
-  width: 100%;
-  text-align: left;
-}
-
-.skillgroup > div> div:last-child{
-  float: right;
-  width: 40px;
-  text-align:right;
-  margin-right:5px;
-}
-
-.skillgroup > div> div > div{
-  width: 50%;
+[class*="col-"] {
   float: left;
+  padding: 15px;
 }
+
+.row {margin: 0% auto; max-width:1200px;}
+
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/*Headings */
+h1, h2, h4 {color:var(--contrastedTextColor);font-family: 'Cormorant Unicase', serif;  padding: 15px;}
+
+h1, h2 {    
+  border: 5px solid;
+  border-image: url(https://pappcseperke.hu/wp-content/uploads/2021/02/Pattern_03.jpg) 5 0 5 0 round;
+  text-align:center;
+  letter-spacing: 1px;}
+
+h3 {
+  font-family: 'Cormorant Unicase', serif;  padding: 15px;
+  font-size:36px;
+  color:var(--goldHighlight2);  
+  text-align:center;
+  letter-spacing: 1px;}
+
+h4 { border: 15px solid transparent;
+    border-image: url(https://pappcseperke.hu/wp-content/uploads/2021/02/Diamonds_60x60.png) 25 stretch; 
+  text-align:center;
+  letter-spacing: 1.5px;}
+
+/* Link color*/
+a {color: #446ac0;font-weight:bold;}
+
+/* Highlights */
+.gold {color:var(--goldHighlight);font-weight:bold;}
+.golditalic {color:var(--goldHighlight);font-weight:bold;font-style: italic;}
+
+/* text variation */
+.contrastedText {color:var(--contrastedTextColor);}
+
+ul {
+  margin-left:-30px;
+  list-style-type: none;
+}
+
+.Image-Frame {border: 15px solid transparent;
+    border-image: url(https://pappcseperke.hu/wp-content/uploads/2021/02/Diamonds_60x60.png) 25 stretch; 
+   }
+
+.FontSizeBig {font-size: 48px;text-align:center;}
 
 .div-table {
   display: table;
-  width: auto;
-#
-  border: 1px solid #ffd1d1;
+  width: 100%;
+#  border: 1px solid #ffd1d1;
   border-spacing: 2px; /* cellspacing:poor IE support for  this */
 }
 .div-table-row {
@@ -144,81 +101,19 @@ body {
         display: table-cell;
 }
 
-#mainstat {
-  /* width: 100%; */
-  display:flex;
+
+.traits .div-table-col:nth-child(5),
+.traits .div-table-col:nth-child(2),
+.traits .div-table-col:nth-child(6)
+{
+    text-align: right;
+    padding: 0 5px 0 5px;
 }
 
-#mainstat > div {
-  width:50%;
-  float:left;
-}
+.traits .div-table-col:nth-child(3),
+.traits .div-table-col:nth-child(5)
+{color:var(--goldHighlight);font-weight:bold;}
 
-#mainstat .div-table{
-  width: 100%;
-}
-
-#mainstat .div-table-row .div-table-col:nth-child(5){
-  text-align:right
-}
-
-#mainstat .div-table-row .div-table-col:nth-child(4){
-  display:none
-}
-
-#mainstat .div-table-row .div-table-col:nth-child(2),
-#mainstat .div-table-row .div-table-col:nth-child(6){
-  text-align:right
-}
-
-.chivalry {
-  font-weight: bold;
-}
-
-#traits.pagan div.pagan {
-  text-decoration:underline;
-}
-
-#passions {
-  width: 100%;
-}
-
-#passions > div {
-  width: 90%;
-  display:flex;
-  width: 100%;
-  /* text-align: left; */
-
-}
-
-#passions > div:first-child  {
-  font-size: 18px;
-  font-weight: bold;
-  color: white;
-  text-align: center;
-  width: 100%;
-  display:block;
-}
-
-.passion {
-  /* width: 100%; */
-  text-align: left;
-
-}
-
-.passion > div:first-child{
-  width: 100%;
-  text-align: left;
-  display:block;
-}
-
-.passion > div > div{
-  width: 50%;
-  float: left;
-}
-.passion > div:last-child{
-  float: right;
-  width: 40px;
-  text-align:right;
-  margin-right:5px;
+#skills .ui-icon-check, #combat .ui-icon-check, #passions .ui-icon-check {
+    margin-left: 5px
 }
