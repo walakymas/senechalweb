@@ -35,6 +35,7 @@ class Character:
                             if f not in sg or str(sg[f])[:1] == '.' or sv > sg[f]:
                                 up[f] = sv
                 sg.update(up)
+        self.data['dbid'] = self.id
         return self.data
 
     cache = {}
@@ -61,16 +62,16 @@ class Character:
                 return c
 
     @staticmethod
-    def get_by_id(mid, force=False):
+    def get_by_id(id, force=False):
         if not force:
             Character.check_cache()
-        if not force and mid in Character.cache:
-            return Character.cache[mid]
+        if not force and id in Character.cache:
+            return Character.cache[id]
         else:
-            record = CharacterTable().get_by_id(mid)
+            record = CharacterTable().get_by_id(id)
             if record:
                 c = Character(record)
-                Character.cache[mid] = c
+                Character.cache[id] = c
                 return c
 
     @staticmethod

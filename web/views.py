@@ -12,6 +12,23 @@ from database.eventstable import EventsTable
 def index(request):
     return HttpResponse("Hello, world. You're at the senechal index.")
 
+def pcresponse(pc):
+    data = {'char': pc.get_data(False)}
+    if 'memberId' in data['char']:
+        data['char']['memberId'] = str(data['char']['memberId'])
+        data['marks'] = []
+        year = MarksTable().year()
+        print(year)
+        for r in MarksTable().list(data['char']['memberId'], year):
+            data['marks'].append(r[5])
+        data['events'] = []
+        for r in EventsTable().list(data['char']['memberId']):
+            data['events'].append({'year': r[3], 'description': r[5], 'glory': r[6], 'id': r[0]})
+    print(data)
+    s = json.dumps(data, indent=4, ensure_ascii=False)
+    response = HttpResponse(s)
+    response['Content-Type'] = 'application/json'
+    return response
 
 @never_cache
 def get_character(request):
@@ -21,22 +38,7 @@ def get_character(request):
     elif 'ch' in request.GET:
         pc = Character.get_by_name(request.GET['ch'], force=True)
     if pc:
-        data = {'char': pc.get_data(False)}
-        if 'memberId' in data['char']:
-            data['char']['memberId'] = str(data['char']['memberId'])
-            data['marks'] = []
-            year = MarksTable().year()
-            print(year)
-            for r in MarksTable().list(data['char']['memberId'], year):
-                data['marks'].append(r[5])
-            data['events'] = []
-            for r in EventsTable().list(data['char']['memberId']):
-                data['events'].append({'year': r[3], 'description': r[5], 'glory': r[6], 'id': r[0]})
-        print(data)
-        s = json.dumps(data, indent=4, ensure_ascii=False)
-        response = HttpResponse(s)
-        response['Content-Type'] = 'application/json'
-        return response
+        return pcresponse(pc)
     names = {}
     for ch in CharacterTable().list():
         names[ch[4]] = ch[0]
@@ -44,10 +46,17 @@ def get_character(request):
     return JsonResponse(names, safe=False, json_dumps_params={'ensure_ascii': False})
 
 
+def mark(request):
+    mid = request.POST['id']
+    year = int(MarksTable.year())
+    MarksTable().set(mid, year, request.POST['mark'])
+    return pcresponse(Character.get_by_memberid(mid, True))
+
+
 def modify(request):
     def set(data, name, value):
         i = name.find('.')
-        if name in data or i<0:
+        if name in data or i < 0:
             data[name] = value
         else:
             dn = name[0:i]
