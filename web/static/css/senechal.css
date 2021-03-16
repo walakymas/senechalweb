@@ -122,9 +122,22 @@ table.traits {
 #passions .ui-icon,
 #skills .ui-icon,
 #combat .ui-icon,
+#events tr,
+#eventshead,
 .traitcheck {
     cursor: pointer
 }
+
+#eventdialog textarea {
+    width: 100%;
+    min-height:200px
+}
+#jsondialog form {
+    margin-block-end: 0;
+}
+
+label, input { display:block; }
+label {color:var(--goldHighlight); }
 
 #skills .ui-icon-check, #combat .ui-icon-check, #passions .ui-icon-check {
     margin-left: 5px

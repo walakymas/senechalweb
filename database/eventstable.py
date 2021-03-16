@@ -8,11 +8,11 @@ class EventsTable(BaseTableHandler):
     def insert(self, lord, description, glory, year=-1):
         return BaseTableHandler.execute('INSERT INTO events (created, modified, year, lord, description, glory) '
                                         'VALUES(now(), now(),%s,%s,%s,%s);',
-            [(self.year(), year)[year >= 0], lord, description, glory], commit=True)
+            [(self.year(), year)[year > 0], lord, description, glory], commit=True)
 
-    def update(self, id, description, glory):
-        return BaseTableHandler.execute('UPDATE events SET modified=now(), description=%s, glory=%s WHERE id=%s',
-                                        [description, glory, id], commit=True)
+    def update(self, id, description, glory, year):
+        return BaseTableHandler.execute('UPDATE events SET modified=now(), description=%s, glory=%s, year=%s WHERE id=%s',
+                                        [description, glory, year, id], commit=True)
 
     def remove(self, id):
         return BaseTableHandler.execute('DELETE FROM events WHERE id=%s', [id], commit=True)

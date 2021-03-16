@@ -26,16 +26,60 @@ horsetypes = {
 skills = []
 passions = []
 cid = 32;
+var searchParams = new URLSearchParams(window.location.search);
 char = {}
-
+data = {}
+event = {}
 var surl = 'https://senechalweb.herokuapp.com'
 if (window.location.href.indexOf('localhost')>0) {
     surl = '..';
     cid = 63;
 }
+if (searchParams.has('cid')) {
+    cid=searchParams.get('cid')
+}
 
-function redraw(data) {
-      char = data.char
+function eventdialog(id) {
+    if ('memberId' in char ) {
+        event =  {'year': 0, 'description': '', 'glory': 0, 'id': -1}
+        if ('events' in data) {
+            for (eid in data['events']) {
+                if (data['events'][eid]['id'] == id) {
+                    event = data['events'][eid];
+                }
+            }
+        }
+        $('#eventid').html(id>0?id:'--')
+        $('#eventyear').val(event['year'])
+        $('#eventglory').val(event['glory'])
+        $('#eventdescription').html(event['description'])
+        $("#eventdialog" ).dialog('open');
+    }
+}
+
+function mark(name) {
+    $( "#markdialog" ).dialog({
+      height: "auto",
+      width: 400,
+      modal: true,
+      buttons: {
+        "Bejelölöm": function() {
+          $( this ).dialog( "close" );
+          $.post( surl+"/mark", {'id':char['memberId'], 'mark':name},function( data ) {
+            redraw(data)
+            console.log('marked')
+          });
+        },
+        Mégsem: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+    $( "#markdialog" ).dialog('open');
+}
+function redraw(newdata) {
+      data = newdata;
+      char = data.char;
 
       $('#name').text(char['name'])
       if  ('url' in char) {
@@ -76,10 +120,15 @@ function redraw(data) {
 
             event = data['events'][eid];
             glory+=event['glory'];
-            $('#events').append('<tr><td>'+event['year']+'</td><td>'+event['glory']+'</td><td>'+event['description'].replace(/\n/g, "<br/>")+'</td></tr>')
+            $('#events').append('<tr id="'+event['id']+'"><td>'+event['year']+'</td><td>'+event['glory']+'</td><td>'+event['description'].replace(/\n/g, "<br/>")+'</td></tr>')
           }
           $('#glory').html(glory);
       }
+
+      $('#events > tr').click(function() {
+        eventdialog($(this).attr('id'));
+      })
+
       $('#combat').html('')
       $('#skills').html('')
       if ('skills' in char) {
@@ -103,10 +152,7 @@ function redraw(data) {
       }
 
       $('[mark]').on('click',function() {
-              $.post( surl+"/mark", {'id':char['memberId'], 'mark':$(this).attr('mark')},function( data ) {
-                redraw(data)
-                console.log('marked')
-              });
+        mark($(this).attr('mark'));
       });
 
       if ('traits' in char) {
@@ -177,7 +223,6 @@ function redraw(data) {
             $('#hother').append('<tr><th>Type</th><td>'+horses[i]+'</td><th>Move</th><td>'+mov+'</td></tr>')
         }
      }
-     console.log(char['winter']['horses'])
 }
 
 function refreshdata(id) {
@@ -186,11 +231,45 @@ function refreshdata(id) {
       redraw(data)
     });
 }
+
   $( function() {
      $('.ui-icon-bullet').hide();
      $('#passions .ui-icon').hide();
      refreshdata(cid);
      setInterval(function (){refreshdata(cid)},60000)
+     $( "#markdialog" ).dialog({autoOpen: false});
+     $( "#eventdialog" ).dialog({
+      autoOpen: false,
+      height: "auto",
+      width: 800,
+      modal: true,
+      buttons: {
+        "Rögzítem": function() {
+          $( this ).dialog( "close" );
+          $.post( surl+"/event", {
+            'eid':event['id']
+            , 'glory':$('#eventglory').val()
+            , 'year':$('#eventyear').val()
+            , 'description':$('#eventdescription').val()
+            , 'mid':char['memberId']
+            },function( data ) {
+            redraw(data)
+            console.log('marked')
+          });
+        },
+        "Törlöm": function() {
+          $( this ).dialog( "close" );
+          $.post( surl+"/event", {'eid':event['id'], 'glory':-1, 'mid':char['memberId']},function( data ) {
+            redraw(data)
+            console.log('marked')
+          });
+        },
+        "Mégsem": function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+
      jsondialog = $( "#jsondialog" ).dialog({
         autoOpen: false,
         height: 800,
@@ -213,6 +292,10 @@ function refreshdata(id) {
         }
       },
     });
+    $('#eventshead').click(function(){
+        console.log('eventshead')
+        eventdialog(-1);
+    })
     $( "#charimg" ).on( "click", function() {
       $( "#json" ).val(JSON.stringify(char, null, 2))
       $( "#jsondialog" ).dialog( "open" );
@@ -222,12 +305,8 @@ function refreshdata(id) {
         console.log($(this).hasClass('left')+":"+tid);
         for (i in traits) {
            if (traits[i][0].toLowerCase().substring(0,3) == tid ) {
-              $.post( surl+"/mark", {'id':char['memberId'], 'mark':traits[i][$(this).hasClass('left')?0:1]},function( data ) {
-                redraw(data)
-                console.log('marked')
-              });
+              mark(traits[i][$(this).hasClass('left')?0:1])
            }
         }
-
      });
   });

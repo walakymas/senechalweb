@@ -53,6 +53,22 @@ def mark(request):
     return pcresponse(Character.get_by_memberid(mid, True))
 
 
+def event(request):
+    eid = int(request.POST['eid'])
+    glory = int(request.POST['glory'])
+    mid = int(request.POST['mid'])
+    if eid > 0 and glory < 0:
+        EventsTable().remove(eid)
+    else:
+        year = int(request.POST['year'])
+        description = request.POST['description']
+        if eid > 0:
+            EventsTable().update(eid, description, glory, year)
+        else:
+            EventsTable().insert(mid, description, glory, year)
+    return pcresponse(Character.get_by_memberid(mid, True))
+
+
 def modify(request):
     def set(data, name, value):
         i = name.find('.')

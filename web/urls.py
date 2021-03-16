@@ -26,6 +26,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('json', views.get_character, name='json'),
     path('mark', views.mark, name='mark'),
+    path('event', views.event, name='event'),
     path('pdf', views.pdf, name='pdf'),
     path('modify', views.modify, name='modify'),
 ]
