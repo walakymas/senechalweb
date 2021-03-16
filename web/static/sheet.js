@@ -231,7 +231,8 @@ function redraw(newdata) {
 function refreshdata(id) {
     cid = id;
     localStorage.setItem('cid', id)
-    $.get( surl+"/json?id="+id,function( data ) {
+    $('#pdf').attr('href', surl + '/pdf?id='+id)
+    $.get( surl + "/json?id="+id,function( data ) {
       redraw(data)
     });
 }
