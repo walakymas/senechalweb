@@ -22,7 +22,6 @@ horsetypes = {
     'palfrey': {'arm': 3, 'siz': 26, 'con':8 , 'dex':10, 'str':16, 'dam':'3d6', mov:6}
 }
 
-
 skills = []
 passions = []
 cid = 32;
@@ -35,6 +34,10 @@ if (window.location.href.indexOf('localhost')>0) {
     surl = '..';
     cid = 63;
 }
+if (localStorage.getItem('cid')) {
+    cid = localStorage.getItem('cid')
+}
+
 if (searchParams.has('cid')) {
     cid=searchParams.get('cid')
 }
@@ -227,6 +230,7 @@ function redraw(newdata) {
 
 function refreshdata(id) {
     cid = id;
+    localStorage.setItem('cid', id)
     $.get( surl+"/json?id="+id,function( data ) {
       redraw(data)
     });
