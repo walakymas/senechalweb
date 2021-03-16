@@ -238,6 +238,30 @@ function refreshdata(id) {
      refreshdata(cid);
      setInterval(function (){refreshdata(cid)},60000)
      $( "#markdialog" ).dialog({autoOpen: false});
+     $( "#selectdialog" ).dialog({
+      autoOpen: false,
+      height: "auto",
+      width: 800,
+      modal: true,
+      buttons: {
+        "Mutasd": function() {
+
+        }
+      }
+     });
+     $('#name').click(function () {
+        $.get( surl+"/json",function( list ) {
+            $( "#selectdialog" ).dialog('open')
+            $('#selectchar').autocomplete({
+              source: Object.keys(list),
+              select: function( event, ui ) {
+                $( "#selectdialog" ).dialog('close')
+                refreshdata(list[ui.item.value]);
+              }
+            });
+        });
+     })
+
      $( "#eventdialog" ).dialog({
       autoOpen: false,
       height: "auto",
