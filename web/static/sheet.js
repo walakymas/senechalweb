@@ -244,6 +244,7 @@ function refreshdata(id) {
      $( "#markdialog" ).dialog({autoOpen: false});
      $( "#selectdialog" ).dialog({
       autoOpen: false,
+      dialogClass: 'ui-widget-shadow',
       height: "auto",
       width: 800,
       modal: true,
@@ -268,6 +269,7 @@ function refreshdata(id) {
 
      $( "#eventdialog" ).dialog({
       autoOpen: false,
+      dialogClass: 'ui-widget-shadow',
       height: "auto",
       width: 800,
       modal: true,
@@ -300,6 +302,7 @@ function refreshdata(id) {
 
      jsondialog = $( "#jsondialog" ).dialog({
         autoOpen: false,
+        dialogClass: 'ui-widget-shadow',
         height: 800,
         width: 800,
         modal: true,
