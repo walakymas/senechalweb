@@ -259,7 +259,15 @@ function refreshdata(id) {
     });
 }
 
+      const options = {
+        mode: 'code',
+        modes: ['code', 'form', 'text', 'tree', 'view', 'preview']
+      }
+      editor = {}
+
   $( function() {
+    const container = document.getElementById('jsoneditor')
+    editor = new JSONEditor(container, options)
     $('#accordion').accordion();
     $('#npcs').accordion();
     $( "#accordion-resizer" ).resizable({
