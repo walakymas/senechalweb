@@ -104,6 +104,9 @@ function redrawMain() {
             if (n != 'Glory') {
                 $('#main').append('<li><span class="gold">'+n+'</span> '+v+'</li>');
             }
+            if (n == 'Born') {
+                $('#main').append('<li><span class="gold">Year</span> '+data['year']+'</li>');
+            }
         }
     }
       $('#description').html('')
