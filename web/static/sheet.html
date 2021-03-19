@@ -24,6 +24,10 @@
     </div> <!-- 33.33% -->
     <div class="col-1">
         <div style="text-align: center"><img class="Image-Frame" id='charimg' src="" width="200"> </div>
+        <div>
+            <select id="character">
+            </select>
+        </div>
         <div style="text-align: center"><a id="pdf" href="" target="sheet"><img class="Image-Frame" src="https://pappcseperke.hu/wp-content/uploads/2021/02/Stundenbuch_Grey-FitzPayn.jpg" width="100" ></a></div>
     </div> <!-- 33.33% -->
 </div>
@@ -46,7 +50,7 @@
 </div>
 <div class="row">
     <div class="col-1">
-        <h2>Personality Traits</h2>
+        <h2 id="traithead">Personality Traits</h2>
         <table class="traits">
             <tbody id="trait_cha"><tr>
                 <td><span class="ui-icon ui-icon-radio-off traitcheck left"></span></td><td >10</td><td >Chaste</td><td class="pagan">Lustful</td><td >10</td><td><span class="ui-icon ui-icon-radio-off traitcheck right"></span></td>
@@ -114,15 +118,15 @@
         </table>
     </div>
     <div class="col-1">
-        <h2>Skills</h2>
+        <h2 class="skillhead">Skills</h2>
         <ul id="skills">
         </ul>
     </div>
     <div class="col-1">
-        <h2>Combat Skills</h2>
+        <h2 class="skillhead">Combat Skills</h2>
         <ul id="combat">
         </ul>
-        <h2>Passions</h2>
+        <h2 id="passionhead">Passions</h2>
         <ul id="passions">
         </ul>
     </div>
@@ -170,9 +174,6 @@
     <div id="jsoneditor"></div>
 </div>
 <div id="statdialog" title="Edit json">
-</div>
-<div id="selectdialog" title="Select character">
-    <input id="selectchar">
 </div>
 <div id="markdialog" title="Pipa?">
     <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Biztosan jelöljem? Csak a Discordon keresztül visszavonható!</p>

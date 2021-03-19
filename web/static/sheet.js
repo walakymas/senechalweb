@@ -362,6 +362,16 @@ function refreshdata(id) {
     editor = new JSONEditor(container, options)
     $('#accordion').accordion();
     $('#events').accordion();
+    $.get( surl+"/json",function( list ) {
+      for (const [n, v] of Object.entries(list)) {
+         $('#character').append('<option value="'+v+'" '+(v==cid?' selected="selected"':"")+'>'+n+'</option>>');
+      }
+      $( "#character" ).selectmenu({
+        change: function( event, data ) {
+            refreshdata(data.item.value);
+        }
+      })
+    });
 
      $('.ui-icon-bullet').hide();
      $('#passions .ui-icon').hide();
@@ -440,25 +450,74 @@ function refreshdata(id) {
         effect: "explode",
         duration: 1000
       },
-      buttons: {
-        "Modify": function() {
-          jsondialog.dialog( "close" );
-          $.post( surl+"/modify", {'id':cid, 'json':JSON.stringify(editor.get())},function( data ) {
-            console.log('modified')
-            redraw(data)
-          });
-        }
-      },
     });
     $('#eventshead').click(function(){
         console.log('eventshead')
         eventdialog(-1);
     })
 
+    $('.skillhead').on( "click", function() {
+        $( "#json" ).val(JSON.stringify(char, null, 2))
+        editor.set(char['skills'])
+        jsondialog.dialog("option", "buttons", [ {
+             text: "Modify",
+             click: function() {
+               jsondialog.dialog( "close" );
+               char['skills']= editor.get()
+               $.post( surl+"/modify", {'id':cid, 'json':JSON.stringify(char)},function( data ) {
+                 console.log('modified')
+                 redraw(data)
+               });
+             }
+           } ] )
+        jsondialog.dialog( "open" );
+    });
+    $('#traithead').on( "click", function() {
+        $( "#json" ).val(JSON.stringify(char, null, 2))
+        editor.set(char['traits'])
+        jsondialog.dialog("option", "buttons", [ {
+             text: "Modify",
+             click: function() {
+               jsondialog.dialog( "close" );
+               char['traits']= editor.get()
+               $.post( surl+"/modify", {'id':cid, 'json':JSON.stringify(char)},function( data ) {
+                 console.log('modified')
+                 redraw(data)
+               });
+             }
+           } ] )
+        jsondialog.dialog( "open" );
+    });
+    $('#passionhead').on( "click", function() {
+        $( "#json" ).val(JSON.stringify(char, null, 2))
+        editor.set(char['passions'])
+        jsondialog.dialog("option", "buttons", [ {
+             text: "Modify",
+             click: function() {
+               jsondialog.dialog( "close" );
+               char['passions']= editor.get()
+               $.post( surl+"/modify", {'id':cid, 'json':JSON.stringify(char)},function( data ) {
+                 console.log('modified')
+                 redraw(data)
+               });
+             }
+           } ] )
+        jsondialog.dialog( "open" );
+    });
     $( "#stathead" ).on( "click", function() {
       $( "#json" ).val(JSON.stringify(char, null, 2))
       editor.set(char)
-      $( "#jsondialog" ).dialog( "open" );
+      jsondialog.dialog("option", "buttons", [ {
+              text: "Modify",
+              click: function() {
+                jsondialog.dialog( "close" );
+                $.post( surl+"/modify", {'id':cid, 'json':JSON.stringify(editor.get())},function( data ) {
+                  console.log('modified')
+                  redraw(data)
+                });
+              }
+            } ] )
+      jsondialog.dialog( "open" );
     });
     $('.traitcheck').on('click', function() {
         tid = $(this).parent().parent().parent().attr('id').substring(6,9);
