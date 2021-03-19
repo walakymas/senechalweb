@@ -29,4 +29,5 @@ urlpatterns = [
     path('event', views.event, name='event'),
     path('pdf', views.pdf, name='pdf'),
     path('modify', views.modify, name='modify'),
+    path('npc', views.npc, name='npc'),
 ]

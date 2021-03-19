@@ -13,6 +13,7 @@ traits = [
     [ 'Trusting', 'Suspicious' ],
     [ 'Valorous', 'Cowardly' ],
     ];
+
 horsetypes = {
     'charger': {'arm': 5, 'siz': 34, 'con':12 , 'dex':17, 'str':30, 'dam':'6d6', mov:8},
     'rouncy': {'arm': 4, 'siz': 26, 'con':14 , 'dex':10, 'str':18, 'dam':'4d6', mov:6},
@@ -29,6 +30,12 @@ var searchParams = new URLSearchParams(window.location.search);
 char = {}
 data = {}
 event = {}
+
+const options = {
+mode: 'code',
+modes: ['code', 'form', 'text', 'tree', 'view', 'preview']
+}
+editor = {}
 
 var surl = 'https://senechalweb.herokuapp.com'
 if (window.location.href.indexOf('localhost')>0) {
@@ -81,43 +88,35 @@ function mark(name) {
     });
     $( "#markdialog" ).dialog('open');
 }
-function redraw(newdata) {
-      data = newdata;
-      char = data.char;
 
-      $('#name').text(char['name'])
-      if  ('url' in char) {
+function redrawMain() {
+    $('#name').text(char['name'])
+    if  ('url' in char) {
         $('#charimg').attr('src',char['url'])
         $('#charimg').show()
-      } else {
+    } else {
         $('#charimg').hide()
-      }
+    }
 
-      $('#main').html('')
-      if ('main' in char) {
-          for (const [n, v] of Object.entries(char['main'])) {
+    $('#main').html('')
+    if ('main' in char) {
+        for (const [n, v] of Object.entries(char['main'])) {
             if (n != 'Glory') {
                 $('#main').append('<li><span class="gold">'+n+'</span> '+v+'</li>');
             }
-          }
+        }
+    }
+      $('#description').html('')
+      if ('description' in char) {
+        $('#description').html(char['description'].replace(/\n/g, "<br/>"))
       }
-      $('#army').html('')
-      if ('army' in char) {
-          for (const [n, v] of Object.entries(char['army'])) {
-             $('#army').append('<tr><th>'+n+'</th><td>'+v+'</td></tr>');
-          }
+      $('#longdescription').html('')
+      if ('longdescription' in char) {
+        $('#longdescription').html(char['longdescription'].replace(/\n/g, "<br/>"))
       }
-      $('#accordion .npcs').remove()
-      if ('npcs' in char) {
-          for (const [n, v] of Object.entries(char['npcs'])) {
-             s=''
-             for (const [n2, v2] of Object.entries(v)) {
-                s += '<tr><th>'+n2+'</th><td>'+v2+'</td></tr>';
-             }
-             $('#accordion').append('<h3 class="npcs">'+n+'</h3><div class="npcs"><table  class="stats">'+s+'</table></div>');
-          }
-      }
-      $('#left').html('')
+}
+
+function redrawStat() {
       $('#hp').html('?');
       if ('stats' in char) {
           $('#statistics').html(
@@ -136,23 +135,37 @@ function redraw(newdata) {
           );
           $('#hp').html(Math.round((char['stats']['siz']*1+char['stats']['con']*1)))
       }
+
+
+}
+
+function redrawEvents() {
       $('#events').html('');
-      $('#glory').html('');
+      $('#glory').html('?');
+      year = -1;
       if ('events' in data) {
           glory = 0;
+          s = ''
           for (eid in data['events']) {
-
             event = data['events'][eid];
             glory+=event['glory'];
-            $('#events').append('<tr id="'+event['id']+'"><td>'+event['year']+'</td><td>'+event['glory']+'</td><td>'+event['description'].replace(/\n/g, "<br/>")+'</td></tr>')
+
+            if (year != event['year']) {
+                year = event['year'];
+                $('#events').append('<h3>'+event['year']+'</h3> <div id="year_'+year+'"></div>');
+            }
+            $('#year_'+year).append('<div id="event_'+event['id']+'" class="event">'+(event['glory']>0?'<span class="gold">'+event['glory']+'</span> ':'')+'<span>'+event['description'].replace(/\n/g, "<br/>")+'</span></div>')
           }
+          $('#events').accordion('refresh');
           $('#glory').html(glory);
       }
 
-      $('#events > tr').click(function() {
-        eventdialog($(this).attr('id'));
+      $('div.event').click(function() {
+        eventdialog($(this).attr('id').substr(6));
       })
+}
 
+function redrawSkill() {
       $('#combat').html('')
       $('#skills').html('')
       if ('skills' in char) {
@@ -165,6 +178,9 @@ function redraw(newdata) {
               }
           }
       }
+}
+
+function redrawPassion() {
       $('#passions').html('')
       if ('passions' in char) {
           count = 0;
@@ -174,11 +190,9 @@ function redraw(newdata) {
               passions[count++]='passions.'+pn;
           }
       }
+}
 
-      $('[mark]').on('click',function() {
-        mark($(this).attr('mark'));
-      });
-
+function redrawTrait() {
       if ('traits' in char) {
        $('#traits').show();
          for (const [tn, tv] of Object.entries(char['traits'])) {
@@ -190,35 +204,79 @@ function redraw(newdata) {
       } else {
        $('#traits').hide();
       }
-      $('#description').html('')
-      if ('description' in char) {
-        $('#description').html(char['description'].replace(/\n/g, "<br/>"))
+}
+
+function redrawNpc(npc) {
+    id = npc['char']['dbid']
+    if (npc['char']['description']) {
+        console.log(npc['char']['description'])
+        $('#npc_'+npc['char']['dbid']).append('<p>'+npc['char']['description']+'</p>')
+    }
+    if (npc['char']['url']) {
+        $('#npc_'+npc['char']['dbid']).append('<img width="100%" src="'+npc['char']['url']+'"/>')
+    }
+    table = $('#npct_'+id)
+    if (npc['char']['main']) {
+        for (const [n, v] of Object.entries(npc['char']['main'])) {
+            table.append('<tr><th>'+n+'</th><td>'+v+'</td></tr>');
+        }
+    }
+    if (npc['char']['stats']) {
+        for (const [n, v] of Object.entries(npc['char']['stats'])) {
+            table.append('<tr><th>'+n+'</th><td>'+v+'</td></tr>');
+        }
+    }
+    if (npc['char']['skills']) {
+        for (const [n, v] of Object.entries(npc['char']['skills'])) {
+            for (const [n2, v2] of Object.entries(v)) {
+                table.append('<tr><th>'+n2+'</th><td>'+v2+'</td></tr>');
+            }
+        }
+    }
+    if (npc['char']['passions']) {
+        for (const [n, v] of Object.entries(npc['char']['passions'])) {
+            table.append('<tr><th>'+n+'</th><td>'+v+'</td></tr>');
+        }
+    }
+}
+
+function npc(npc) {
+    s='<h5>'+npc['name']+' <i>('+npc['connection']+')</h5>';
+    if ('dbid' in npc) {
+        s+='<div id="npc_'+npc['dbid']+'"></div>'
+        $.get( surl + "/npc?id="+npc['dbid'],function( data ) {
+          redrawNpc(data)
+        });
+    }
+        s+='<table class="stats" '+(npc['dbid']?(' id="npct_'+npc['dbid']+'"'):"")+'>'
+    if ('show' in npc) {
+        if ('born' in npc && npc['connection']=='Squire' ) {
+            npc['Years']=data['year']-npc['born']
+        }
+        for (const [n2, v2] of Object.entries(npc['show'])) {
+            s += '<tr><th>'+n2+'</th><td>'+v2+'</td></tr>';
+        }
+    }
+        s+='</table>'
+    return s
+}
+
+
+function redrawAccordion() {
+      $('#army').html('')
+      if ('army' in char) {
+          for (const [n, v] of Object.entries(char['army'])) {
+             $('#army').append('<tr><th>'+n+'</th><td>'+v+'</td></tr>');
+          }
       }
-      $('#longdescription').html('')
-      if ('longdescription' in char) {
-        $('#longdescription').html(char['longdescription'].replace(/\n/g, "<br/>"))
+      $('#accordion .npcs').remove()
+      if ('npcs' in char) {
+          for (const [n, v] of Object.entries(char['npcs'])) {
+             $('#accordion').append('<h3 class="npcs">'+n+'</h3><div class="npcs">'+npc(v)+'</div>');
+          }
       }
-     $('.ui-icon-bullet').removeClass('ui-icon-bullet').addClass('ui-icon-radio-off')
-     if ('marks' in data) {
-         for (i in skills) {
-            if (data['marks'].includes(skills[i].replace(/.*\./g, ""))) {
-                $('#skill_'+i+' .ui-icon').removeClass('ui-icon-radio-off').addClass('ui-icon-bullet')
-            }
-         }
-         for (i in passions) {
-            if (data['marks'].includes(passions[i].replace(/.*\./g, ""))) {
-                 $('#passion_'+i+' .ui-icon').removeClass('ui-icon-radio-off').addClass('ui-icon-bullet')
-            }
-         }
-         for (i in traits) {
-            if (data['marks'].includes(traits[i][0])) {
-              $('#trait_'+traits[i][0].toLowerCase().substring(0,3)+' .left').removeClass('ui-icon-radio-off').addClass('ui-icon-bullet')
-            }
-            if (data['marks'].includes(traits[i][1])) {
-              $('#trait_'+traits[i][0].toLowerCase().substring(0,3)+' .right').removeClass('ui-icon-radio-off').addClass('ui-icon-bullet')
-            }
-         }
-     }
+
+
      horses = ['charger', 'rouncy', 'rouncy', 'sumpter', 'sumpter'];
      if ('winter' in char && 'horses' in char['winter']) {
         horses = char['winter']['horses'];
@@ -250,6 +308,44 @@ function redraw(newdata) {
      $('#accordion').accordion("refresh")
 }
 
+function redraw(newdata) {
+    if (data['modified']  != newdata['modified']) {
+        char = newdata['char'];
+        redrawMain();
+        redrawStat();
+        redrawSkill();
+        redrawPassion();
+        redrawTrait();
+        redrawAccordion();
+        $('[mark]').on('click',function() {
+            mark($(this).attr('mark'));
+        });
+    }
+    data = newdata;
+    redrawEvents();
+
+     $('.ui-icon-bullet').removeClass('ui-icon-bullet').addClass('ui-icon-radio-off')
+     if ('marks' in data) {
+         for (i in skills) {
+            if (data['marks'].includes(skills[i].replace(/.*\./g, ""))) {
+                $('#skill_'+i+' .ui-icon').removeClass('ui-icon-radio-off').addClass('ui-icon-bullet')
+            }
+         }
+         for (i in passions) {
+            if (data['marks'].includes(passions[i].replace(/.*\./g, ""))) {
+                 $('#passion_'+i+' .ui-icon').removeClass('ui-icon-radio-off').addClass('ui-icon-bullet')
+            }
+         }
+         for (i in traits) {
+            if (data['marks'].includes(traits[i][0])) {
+              $('#trait_'+traits[i][0].toLowerCase().substring(0,3)+' .left').removeClass('ui-icon-radio-off').addClass('ui-icon-bullet')
+            }
+            if (data['marks'].includes(traits[i][1])) {
+              $('#trait_'+traits[i][0].toLowerCase().substring(0,3)+' .right').removeClass('ui-icon-radio-off').addClass('ui-icon-bullet')
+            }
+         }
+     }
+}
 function refreshdata(id) {
     cid = id;
     localStorage.setItem('cid', id)
@@ -259,24 +355,11 @@ function refreshdata(id) {
     });
 }
 
-      const options = {
-        mode: 'code',
-        modes: ['code', 'form', 'text', 'tree', 'view', 'preview']
-      }
-      editor = {}
-
   $( function() {
     const container = document.getElementById('jsoneditor')
     editor = new JSONEditor(container, options)
     $('#accordion').accordion();
-    $('#npcs').accordion();
-    $( "#accordion-resizer" ).resizable({
-      minHeight: 400,
-      minWidth: 200,
-      resize: function() {
-        $( "#accordion" ).accordion( "refresh" );
-      }
-    });
+    $('#events').accordion();
 
      $('.ui-icon-bullet').hide();
      $('#passions .ui-icon').hide();

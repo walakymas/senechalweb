@@ -167,6 +167,7 @@ table.stats {
 
 table.stats th {
     text-align: left;
+    text-transform:capitalize;
 }
 
 table.stats td {

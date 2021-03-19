@@ -7,24 +7,23 @@ from character import Character
 from database.charactertable import CharacterTable
 from database.markstable import MarksTable
 from database.eventstable import EventsTable
-
+from datetime import datetime
 
 def index(request):
     return HttpResponse("Hello, world. You're at the senechal index.")
 
 def pcresponse(pc):
-    data = {'char': pc.get_data(False)}
+    data = {'char': pc.get_data(False), 'modified':datetime.timestamp(pc.modified)}
     if 'memberId' in data['char']:
         data['char']['memberId'] = str(data['char']['memberId'])
         data['marks'] = []
         year = MarksTable().year()
-        print(year)
+        data['year'] = year
         for r in MarksTable().list(data['char']['memberId'], year):
             data['marks'].append(r[5])
         data['events'] = []
         for r in EventsTable().list(data['char']['memberId']):
             data['events'].append({'year': r[3], 'description': r[5], 'glory': r[6], 'id': r[0]})
-    print(data)
     s = json.dumps(data, indent=4, ensure_ascii=False)
     response = HttpResponse(s)
     response['Content-Type'] = 'application/json'
@@ -42,8 +41,12 @@ def get_character(request):
     names = {}
     for ch in CharacterTable().list():
         names[ch[4]] = ch[0]
-    print(names)
     return JsonResponse(names, safe=False, json_dumps_params={'ensure_ascii': False})
+
+
+@never_cache
+def npc(request):
+    return pcresponse(Character.get_by_id(request.GET['id'], force=True))
 
 
 def mark(request):
