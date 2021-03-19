@@ -29,6 +29,7 @@ var searchParams = new URLSearchParams(window.location.search);
 char = {}
 data = {}
 event = {}
+
 var surl = 'https://senechalweb.herokuapp.com'
 if (window.location.href.indexOf('localhost')>0) {
     surl = '..';
@@ -95,7 +96,22 @@ function redraw(newdata) {
       $('#main').html('')
       if ('main' in char) {
           for (const [n, v] of Object.entries(char['main'])) {
-            $('#main').append('<li><span class="gold">'+n+'</span> '+v+'</li>');
+            if (n != 'Glory') {
+                $('#main').append('<li><span class="gold">'+n+'</span> '+v+'</li>');
+            }
+          }
+      }
+      $('#army').html('')
+      if ('army' in char) {
+          for (const [n, v] of Object.entries(char['army'])) {
+             $('#army').append('<tr><th>'+n+'</th><td>'+v+'</td></tr>');
+          }
+      }
+      $('#accordion').remove('.npcs')
+      if ('npcs' in char) {
+          for (const [n, v] of Object.entries(char['npcs'])) {
+            console.log(n)
+             $('#accordion').append('<h3 class="npcs">'+n+'</h3><div class="npcs">'+n+'</div>');
           }
       }
       $('#left').html('')
@@ -112,6 +128,8 @@ function redraw(newdata) {
           +'<li><span class="gold">Move Rate</span> <em> (STR+DEX)/10=</em> <strong>'+Math.round((char['stats']['dex']*1+char['stats']['siz']*1)/10)+' </strong></li>'
           +'<li><span class="gold">Total Hitpoints</span> <em> (SIZ+CON)=</em> <strong>'+Math.round((char['stats']['siz']*1+char['stats']['con']*1))+' </strong></li>'
           +'<li><span class="gold">Unconscious</span> <em> (HP/4)=</em> <strong>'+Math.round((char['stats']['con']*1+char['stats']['siz']*1))+' </strong></li>'
+          +'<li><span class="gold">Major Wound</span> <em> (CON)=</em> <strong>'+char['stats']['con']+' </strong></li>'
+          +'<li><span class="gold">Knockdown</span> <em> (SIZ)=</em> <strong>'+char['stats']['siz']+' </strong></li>'
           );
           $('#hp').html(Math.round((char['stats']['siz']*1+char['stats']['con']*1)))
       }
@@ -139,7 +157,7 @@ function redraw(newdata) {
           skills = []
           for (const [sgn, sgv] of Object.entries(char['skills'])) {
               for (const [sn, sv] of Object.entries(sgv)) {
-                  $(sgn=='Other'?'#skills':'#combat').append('<li id="skill_'+skillcount+'"><span class="gold">'+sn+'</span> '+sv+'<span class="ui-icon ui-icon-radio-off" mark="'+sn+'"></span></li>');
+                  $(sgn=='Other'?'#skills':'#combat').append('<li id="skill_'+skillcount+'"><span class="ui-icon ui-icon-radio-off" mark="'+sn+'"></span><span class="gold">'+sn+'</span> '+sv+'</li>');
                   skills[skillcount++]='skills.'+sgn+'.'+sn;
               }
           }
@@ -149,7 +167,7 @@ function redraw(newdata) {
           count = 0;
           passions = []
           for (const [pn, pv] of Object.entries(char['passions'])) {
-              $('#passions').append('<li id="passion_'+count+'"><span class="gold">'+pn+'</span> '+pv+'<span class="ui-icon ui-icon-radio-off" mark="'+pn+'"></span></li>');
+              $('#passions').append('<li id="passion_'+count+'"><span class="ui-icon ui-icon-radio-off" mark="'+pn+'"></span><span class="gold">'+pn+'</span> '+pv+'</li>');
               passions[count++]='passions.'+pn;
           }
       }
@@ -214,7 +232,7 @@ function redraw(newdata) {
      $('#hhea').html(Math.round((htype['con']*1+htype['str']*1)/10))
      $('#hmov').html(htype['mov'])
      $('#hhp').html(Math.round((htype['siz']*1+htype['con']*1)))
-     $('#hunc').html(Math.round((htype['con']*1+htype['siz']*1)))
+     $('#hunc').html(Math.round((htype['con']*1+htype['siz']*1)/4))
      $('#hother').html('');
      for(i in horses) {
         if (i>0) {
@@ -226,6 +244,7 @@ function redraw(newdata) {
             $('#hother').append('<tr><th>Type</th><td>'+horses[i]+'</td><th>Move</th><td>'+mov+'</td></tr>')
         }
      }
+     $('#accordion').accordion("refresh")
 }
 
 function refreshdata(id) {
@@ -238,6 +257,16 @@ function refreshdata(id) {
 }
 
   $( function() {
+    $('#accordion').accordion();
+    $('#npcs').accordion();
+    $( "#accordion-resizer" ).resizable({
+      minHeight: 400,
+      minWidth: 200,
+      resize: function() {
+        $( "#accordion" ).accordion( "refresh" );
+      }
+    });
+
      $('.ui-icon-bullet').hide();
      $('#passions .ui-icon').hide();
      refreshdata(cid);
@@ -318,7 +347,7 @@ function refreshdata(id) {
       buttons: {
         "Modify": function() {
           jsondialog.dialog( "close" );
-          $.post( surl+"/modify", {'id':cid, 'json':$( "#json" ).val()},function( data ) {
+          $.post( surl+"/modify", {'id':cid, 'json':JSON.stringify(editor.get())},function( data ) {
             console.log('modified')
           });
         }
@@ -328,8 +357,10 @@ function refreshdata(id) {
         console.log('eventshead')
         eventdialog(-1);
     })
-    $( "#charimg" ).on( "click", function() {
+
+    $( "#stathead" ).on( "click", function() {
       $( "#json" ).val(JSON.stringify(char, null, 2))
+      editor.set(char)
       $( "#jsondialog" ).dialog( "open" );
     });
     $('.traitcheck').on('click', function() {

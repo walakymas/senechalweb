@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <script src="jquery-3.5.1.min.js"></script>
     <link rel="stylesheet" href="jquery-ui-1.12.1.custom/jquery-ui.css">
+    <link rel="stylesheet" href="json/jsoneditor.css">
     <link rel="stylesheet" href="css/senechal.css">
     <script src="jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+    <script src="json/jsoneditor.min.js"></script>
     <script src="sheet.js"></script>
 </head>
 <body>
@@ -15,7 +17,7 @@
         </ul>
 
     </div> <!-- 33.33% -->
-    <div class="col-1"><h2>Statistics</h2>
+    <div class="col-1"><h2 id="stathead">Statistics</h2>
         <ul id="statistics">
         </ul>
 
@@ -138,19 +140,36 @@
         </table>
     </div>
     <div class="col-1">
-        <h1>Horses</h1>
-        <h5>Main</h5>
-        <table width="100%" id="horses">
-            <tr><th>Type</th><td id="htyp" colspan="2"></td></tr>
-            <tr><th>SIZ</th><td id="hsiz"></td><th>CON</th><td id="hcon"></td></tr>
-            <tr><th>DEX</th><td id="hdex"></td><th>STR</th><td id="hstr"></td></tr>
-            <tr><th>Damage</th><td id="hdam" colspan="2"></td></tr>
-            <tr><th>Move</th><td id="hmov"></td><th>Armor</th><td id="harm"></td></tr>
-            <tr><th>Total Hitpoints</th><td id="hhp"></td><th>Healing Rate</th><td id="hhea"></td></tr>
-        </table>
-        <h5>Others</h5>
-        <table  width="100%" id="hother">
-        </table>
+        <div id="accordion">
+            <h3>Army</h3>
+            <div>
+                <table width="100%" id="army" class="stats">
+                    <tr><th>Example</th><td>11</td></tr>
+                    <tr><th>Example</th><td>11</td></tr>
+                    <tr><th>Example</th><td>11</td></tr>
+                    <tr><th>Example</th><td>11</td></tr>
+                    <tr><th>Example</th><td>11</td></tr>
+                    <tr><th>Example</th><td>11</td></tr>
+                    <tr><th>Example</th><td>11</td></tr>
+                    <tr><th>Example</th><td>11</td></tr>
+                    </tr></table>
+            </div>
+            <h3>Horses</h3>
+            <div>
+                <h5>Main</h5>
+                <table width="100%" id="horses" class="stats">
+                    <tr><th>Type</th><td id="htyp" colspan="2"></td></tr>
+                    <tr><th>SIZ</th><td id="hsiz"></td><th>CON</th><td id="hcon"></td></tr>
+                    <tr><th>DEX</th><td id="hdex"></td><th>STR</th><td id="hstr"></td></tr>
+                    <tr><th>Damage</th><td id="hdam" colspan="2"></td></tr>
+                    <tr><th>Move</th><td id="hmov"></td><th>Armor</th><td id="harm"></td></tr>
+                    <tr><th>Total Hitpoints</th><td id="hhp"></td><th>Healing Rate</th><td id="hhea"></td></tr>
+                </table>
+                <h5>Others</h5>
+                <table  width="100%" id="hother" class="stats">
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row" id="descriptions">
@@ -159,11 +178,17 @@
     <br/>
     <span class="contrastedText" id="longdescription"></span>
 </div>
+
 <div id="jsondialog" title="Edit json">
-    <form>
-        <input name="id" id="cid" type="hidden"/>
-        <textarea name="json" id="json"></textarea>
-    </form>
+    <div id="jsoneditor"></div>
+    <script>
+      const container = document.getElementById('jsoneditor')
+      const options = {
+        mode: 'code',
+        modes: ['code', 'form', 'text', 'tree', 'view', 'preview']
+      }
+      const editor = new JSONEditor(container, options)
+    </script>
 </div>
 <div id="statdialog" title="Edit json">
 </div>

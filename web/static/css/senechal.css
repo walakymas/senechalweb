@@ -124,6 +124,7 @@ table.traits {
 #combat .ui-icon,
 #events tr,
 #eventshead,
+#stathead,
 .traitcheck {
     cursor: pointer
 }
@@ -159,16 +160,17 @@ th
     text-align: justify;
 }
 
-#horses {
-    width: 100%;
+table.stats {
+  width: 100%;
+  font-size: initial;
 }
 
-#horses th {
+table.stats th {
     text-align: left;
 }
 
-#horses td {
-    font-weight: right;
+table.stats td {
+    text-align: right;
 }
 
 .ratioGreen {
@@ -196,4 +198,12 @@ th
 #json {
     width: 100%;
     height: 100%;
+}
+
+.ui-accordion .ui-accordion-content {
+  padding: 5px 5px;
+}
+
+.ui-accordion {
+  padding-bottom: 20px;
 }
