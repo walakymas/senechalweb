@@ -349,10 +349,52 @@ function redraw(newdata) {
      }
 }
 function refreshdata(id) {
+    if (cid != id) {
+        data['modified'] = -1;
+    }
     cid = id;
     localStorage.setItem('cid', id)
     $('#pdf').attr('href', surl + '/pdf?id='+id)
     $.get( surl + "/json?id="+id,function( data ) {
+      if (!data['char']['stats']) {
+        data['char']['stats'] = {"siz": 10, "dex": 10, "str": 10, "con": 10, "app": 10}
+      }
+      if (!data['char']['traits']) {
+        data['char']['traits'] = { "cha": 10, "ene": 10, "for": 10, "gen": 10, "hon": 10, "jus": 10, "mer": 10, "mod": 10, "pru": 10, "spi": 10, "tem": 10, "tru": 10, "val": 10 }
+      }
+      if (!data['char']['passions']) {
+        data['char']['passions'] = { }
+      }
+      if (!data['char']['skills']) {
+        data['char']['skills'] = { "Other":{} }
+      }
+      if (!data['char']['main']) {
+        data['char']['main'] = { }
+      }
+      if (!data['char']['description']) {
+        data['char']['description'] = "???"
+      }
+      if (!data['char']['army']) {
+        data['char']['army'] = {
+          "Old Knights": 0,
+          "Middle-aged Knights": 0,
+          "Young Knights": 0,
+          "Other Lineage Men": 0,
+          "Levy": 0
+        }
+      }
+      if (!data['char']['winter']) {
+        data['char']['winter'] = {
+          "stewardship_": 13,
+          "horses": [
+            "charger",
+            "rouncy",
+            "rouncy",
+            "sumpter",
+            "sumpter"
+          ]
+        }
+      }
       redraw(data)
     });
 }
@@ -368,6 +410,7 @@ function refreshdata(id) {
       }
       $( "#character" ).selectmenu({
         change: function( event, data ) {
+            console.log(data.item.value)
             refreshdata(data.item.value);
         }
       })
@@ -496,6 +539,22 @@ function refreshdata(id) {
              click: function() {
                jsondialog.dialog( "close" );
                char['passions']= editor.get()
+               $.post( surl+"/modify", {'id':cid, 'json':JSON.stringify(char)},function( data ) {
+                 console.log('modified')
+                 redraw(data)
+               });
+             }
+           } ] )
+        jsondialog.dialog( "open" );
+    });
+    $('#name').on( "click", function() {
+        $( "#json" ).val(JSON.stringify(char, null, 2))
+        editor.set(char['main'])
+        jsondialog.dialog("option", "buttons", [ {
+             text: "Modify",
+             click: function() {
+               jsondialog.dialog( "close" );
+               char['main']= editor.get()
                $.post( surl+"/modify", {'id':cid, 'json':JSON.stringify(char)},function( data ) {
                  console.log('modified')
                  redraw(data)
