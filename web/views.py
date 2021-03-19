@@ -79,7 +79,6 @@ def modify(request):
             if dn not in data:
                 data[dn] = {}
             set(data[dn], name[i+1:], value)
-    print(request.POST.keys())
     if 'json' in request.POST:
         CharacterTable().set_json(request.POST['id'], request.POST['json'])
     else:
@@ -90,7 +89,7 @@ def modify(request):
                 set(data, name, value)
         j = json.dumps(data, ensure_ascii=False, indent=2)
         CharacterTable().set_json(request.POST['id'], j)
-    return HttpResponse(request.method)
+    return pcresponse(Character.get_by_id(request.POST['id'], force=True))
 
 
 def pdf(request):

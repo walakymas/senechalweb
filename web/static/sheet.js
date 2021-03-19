@@ -107,11 +107,14 @@ function redraw(newdata) {
              $('#army').append('<tr><th>'+n+'</th><td>'+v+'</td></tr>');
           }
       }
-      $('#accordion').remove('.npcs')
+      $('#accordion .npcs').remove()
       if ('npcs' in char) {
           for (const [n, v] of Object.entries(char['npcs'])) {
-            console.log(n)
-             $('#accordion').append('<h3 class="npcs">'+n+'</h3><div class="npcs">'+n+'</div>');
+             s=''
+             for (const [n2, v2] of Object.entries(v)) {
+                s += '<tr><th>'+n2+'</th><td>'+v2+'</td></tr>';
+             }
+             $('#accordion').append('<h3 class="npcs">'+n+'</h3><div class="npcs"><table  class="stats">'+s+'</table></div>');
           }
       }
       $('#left').html('')
@@ -349,6 +352,7 @@ function refreshdata(id) {
           jsondialog.dialog( "close" );
           $.post( surl+"/modify", {'id':cid, 'json':JSON.stringify(editor.get())},function( data ) {
             console.log('modified')
+            redraw(data)
           });
         }
       },
