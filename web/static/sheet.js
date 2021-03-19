@@ -248,16 +248,17 @@ function npc(npc) {
           redrawNpc(data)
         });
     }
-        s+='<table class="stats" '+(npc['dbid']?(' id="npct_'+npc['dbid']+'"'):"")+'>'
+    s+='<table class="stats" '+(npc['dbid']?(' id="npct_'+npc['dbid']+'"'):"")+'>'
     if ('show' in npc) {
-        if ('born' in npc && npc['connection']=='Squire' ) {
-            npc['Years']=data['year']-npc['born']
+        if (npc['show']['born'] && npc['connection'].toLowerCase()=='squire' ) {
+            console.log(data['year']+':'+npc['show']['born'])
+            npc['show']['Years']=data['year']*1-npc['show']['born']*1
         }
         for (const [n2, v2] of Object.entries(npc['show'])) {
             s += '<tr><th>'+n2+'</th><td>'+v2+'</td></tr>';
         }
     }
-        s+='</table>'
+    s+='</table>'
     return s
 }
 
@@ -310,6 +311,7 @@ function redrawAccordion() {
 
 function redraw(newdata) {
     if (data['modified']  != newdata['modified']) {
+        data = newdata;
         char = newdata['char'];
         redrawMain();
         redrawStat();
