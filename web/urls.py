@@ -34,5 +34,4 @@ urlpatterns = [
     path('npc', views.npc, name='npc'),
     path('players', views.pcs, name='players'),
     path('newchar', views.newchar, name='newchar'),
-    path('discordbot/', include('discordbot.urls')),
 ]
