@@ -40,8 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'whitenoise.runserver_nostatic',
-    'discordbot'
+    'whitenoise.runserver_nostatic'
 ]
 
 MIDDLEWARE = [
