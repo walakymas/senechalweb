@@ -30,6 +30,15 @@ def pcresponse(pc):
     return response
 
 @never_cache
+def pcs(request):
+    result = []
+    records = CharacterTable().get_pcs()
+    for r in records:
+        result.append(Character(r).get_data())
+    return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
+
+
+@never_cache
 def get_character(request):
     pc = None
     if 'id' in request.GET:
@@ -70,6 +79,12 @@ def event(request):
         else:
             EventsTable().insert(mid, description, glory, year)
     return pcresponse(Character.get_by_memberid(mid, True))
+
+
+def newchar(request):
+    CharacterTable().add(request.POST['json'])
+    data = json.loads(request.POST['json'])
+    return pcresponse(Character.get_by_name(data['name']))
 
 
 def modify(request):

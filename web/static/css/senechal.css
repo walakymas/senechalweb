@@ -208,3 +208,30 @@ table.stats td {
 .ui-accordion {
   padding-bottom: 20px;
 }
+
+.ui-selectmenu-button.ui-button {
+	width: 100%;
+}
+
+#team thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: black;
+}
+
+#team td {
+    min-width: 80px;
+    text-align: center;
+}
+
+#team tbody tr:nth-child(2n+3) {
+    background-color: #333
+}
+
+#teamdiv {
+  width: 100%;
+  max-height: 500px;
+  overflow: auto;
+
+}

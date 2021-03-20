@@ -12,7 +12,7 @@
 </head>
 <body>
 <div class="row">
-    <div class="col-1"><h2 id="name">Name</h2>
+    <div class="col-1"><h2 id="mainhead">Main</h2>
         <ul id='main'>
         </ul>
 
@@ -23,12 +23,17 @@
 
     </div> <!-- 33.33% -->
     <div class="col-1">
-        <div style="text-align: center"><img class="Image-Frame" id='charimg' src="" width="200"> </div>
         <div>
             <select id="character">
             </select>
         </div>
-        <div style="text-align: center"><a id="pdf" href="" target="sheet"><img class="Image-Frame" src="https://pappcseperke.hu/wp-content/uploads/2021/02/Stundenbuch_Grey-FitzPayn.jpg" width="100" ></a></div>
+        <div style="text-align: center"><img class="Image-Frame" id='charimg' src="" width="200"> </div>
+        <div class="row">
+
+            <div class="col-1" style="text-align: center"><img class="Image-Frame" id="editchar" src="https://rmc.library.cornell.edu/medievalbook/pics/225pixW/4600BdMs20_cover.jpg" width="100" ></div>
+            <div class="col-1" style="text-align: center"><a id="pdf" href="" target="sheet"><img class="Image-Frame" src="https://pappcseperke.hu/wp-content/uploads/2021/02/Stundenbuch_Grey-FitzPayn.jpg" width="100" ></a></div>
+            <div class="col-1" style="text-align: center"><img class="Image-Frame" id="newchar" src="https://cdn.discordapp.com/attachments/784174179972153364/822584896606306324/6735dacb397d.png" width="100" ></div>
+        </div>
     </div> <!-- 33.33% -->
 </div>
 
@@ -187,6 +192,18 @@
         <input type="text" name="eventglory" id="eventglory" value="???" class="text ui-widget-content ui-corner-all">
         <label for="eventdescription">Description</label>
         <textarea name="eventdescription" id="eventdescription" value="xxxxxxx" class="text ui-widget-content ui-corner-all">
+        </textarea>
+    </fieldset>
+</div>
+<div id="newchardialog" title="New character">
+    <fieldset>
+        <label for="newcharname">Name</label>
+        <input type="text" id="newcharname" value="???" class="text ui-widget-content ui-corner-all">
+        <label for="newcharurl">Url</label>
+        <input type="text" id="newcharurl" value="" class="text ui-widget-content ui-corner-all">
+        <label for="newchardescription">Description</label>
+        <textarea id="newchardescription" class="text ui-widget-content ui-corner-all">
+            ???
         </textarea>
     </fieldset>
 </div>

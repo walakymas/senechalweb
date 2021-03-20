@@ -8,8 +8,13 @@ class CharacterTable(BaseTableHandler):
     def __init__(self):
         super().__init__('characters')
 
+    def add(self, data):
+        j = json.loads(data)
+        BaseTableHandler.execute(
+            "INSERT INTO characters (created, modified, data, name) VALUES (now(), now(), %(data)s, %(name)s)",
+            {'name': j['name'], 'data': data}, commit=True)
+
     def set_json(self, id, data):
-        print(type(data))
         j = json.loads(data)
         BaseTableHandler.execute(
 "UPDATE characters SET modified=now(), data=%(data)s, name=%(name)s WHERE id=%(id)s",
@@ -23,6 +28,9 @@ class CharacterTable(BaseTableHandler):
 
     def get_by_id(self, mid):
         return BaseTableHandler.execute("SELECT * FROM characters WHERE id = %s", param=[mid], fetch='one')
+
+    def get_pcs(self):
+        return BaseTableHandler.execute("SELECT * FROM characters WHERE memberid IS NOT NULL", fetch='all')
 
     def list(self):
         return BaseTableHandler.execute('SELECT * FROM characters ORDER BY name', fetch='all')

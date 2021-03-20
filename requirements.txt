@@ -16,3 +16,4 @@ gunicorn
 django-heroku
 whitenoise
 dj-database-url
+django-discordbot

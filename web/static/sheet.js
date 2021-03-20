@@ -90,7 +90,6 @@ function mark(name) {
 }
 
 function redrawMain() {
-    $('#name').text(char['name'])
     if  ('url' in char) {
         $('#charimg').attr('src',char['url'])
         $('#charimg').show()
@@ -104,8 +103,9 @@ function redrawMain() {
             if (n != 'Glory') {
                 $('#main').append('<li><span class="gold">'+n+'</span> '+v+'</li>');
             }
-            if (n == 'Born') {
+            if (n.toLowerCase() == 'born') {
                 $('#main').append('<li><span class="gold">Year</span> '+data['year']+'</li>');
+                $('#main').append('<li><span class="gold">Age</span> '+(data['year']*1-v*1)+'</li>');
             }
         }
     }
@@ -197,7 +197,7 @@ function redrawPassion() {
 
 function redrawTrait() {
       if ('traits' in char) {
-       $('#traits').show();
+         $('#traits').show();
          for (const [tn, tv] of Object.entries(char['traits'])) {
             $('#trait_'+tn+' tr:first-child  td:nth-child(2)').text(tv)
             $('#trait_'+tn+' tr:first-child  td:nth-child(5)').text(20-tv*1)
@@ -253,12 +253,11 @@ function npc(npc) {
     }
     s+='<table class="stats" '+(npc['dbid']?(' id="npct_'+npc['dbid']+'"'):"")+'>'
     if ('show' in npc) {
-        if (npc['show']['born'] && npc['connection'].toLowerCase()=='squire' ) {
-            console.log(data['year']+':'+npc['show']['born'])
-            npc['show']['Years']=data['year']*1-npc['show']['born']*1
-        }
-        for (const [n2, v2] of Object.entries(npc['show'])) {
+       for (const [n2, v2] of Object.entries(npc['show'])) {
             s += '<tr><th>'+n2+'</th><td>'+v2+'</td></tr>';
+            if (n2.toLowerCase()=='born') {
+                s += '<tr><th>Age</th><td>'+(data['year']*1-v2*1)+'</td></tr>';
+            }
         }
     }
     s+='</table>'
@@ -424,31 +423,6 @@ function refreshdata(id) {
      refreshdata(cid);
      setInterval(function (){refreshdata(cid)},60000)
      $( "#markdialog" ).dialog({autoOpen: false});
-     $( "#selectdialog" ).dialog({
-      autoOpen: false,
-      dialogClass: 'ui-widget-shadow',
-      height: "auto",
-      width: 800,
-      modal: true,
-      buttons: {
-        "Mutasd": function() {
-
-        }
-      }
-     });
-     $('#name').click(function () {
-        $.get( surl+"/json",function( list ) {
-            $( "#selectdialog" ).dialog('open')
-            $('#selectchar').autocomplete({
-              source: Object.keys(list),
-              select: function( event, ui ) {
-                $( "#selectdialog" ).dialog('close')
-                refreshdata(list[ui.item.value]);
-              }
-            });
-        });
-     })
-
      $( "#eventdialog" ).dialog({
       autoOpen: false,
       dialogClass: 'ui-widget-shadow',
@@ -482,6 +456,31 @@ function refreshdata(id) {
       }
     });
 
+     $( "#newchardialog" ).dialog({
+      autoOpen: false,
+      dialogClass: 'ui-widget-shadow',
+      height: "auto",
+      width: 800,
+      modal: true,
+      buttons: {
+        "Rögzítem": function() {
+          $( this ).dialog( "close" );
+          $.post( surl+"/newchar", {'json':JSON.stringify({
+            'name':$('#newcharname').val()
+            , 'url':$('#newcharurl').val()
+            , 'description':$('#newchardescription').val()
+            })},function( data ) {
+                $('#character').append('<option value="'+data['char']['dbid']+'">'+data['char']['name']+'</option>>');
+                $("#character").selectmenu( "refresh" );
+                redraw(data)
+          });
+        },
+        "Mégsem": function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+
      jsondialog = $( "#jsondialog" ).dialog({
         autoOpen: false,
         dialogClass: 'ui-widget-shadow',
@@ -500,6 +499,10 @@ function refreshdata(id) {
     $('#eventshead').click(function(){
         console.log('eventshead')
         eventdialog(-1);
+    })
+
+    $('#newchar').click(function(){
+        $("#newchardialog" ).dialog('open');
     })
 
     $('.skillhead').on( "click", function() {
@@ -550,7 +553,7 @@ function refreshdata(id) {
            } ] )
         jsondialog.dialog( "open" );
     });
-    $('#name').on( "click", function() {
+    $('#mainhead').on( "click", function() {
         $( "#json" ).val(JSON.stringify(char, null, 2))
         editor.set(char['main'])
         jsondialog.dialog("option", "buttons", [ {
@@ -566,7 +569,23 @@ function refreshdata(id) {
            } ] )
         jsondialog.dialog( "open" );
     });
-    $( "#stathead" ).on( "click", function() {
+    $('#stathead').on( "click", function() {
+        $( "#json" ).val(JSON.stringify(char, null, 2))
+        editor.set(char['stats'])
+        jsondialog.dialog("option", "buttons", [ {
+             text: "Modify",
+             click: function() {
+               jsondialog.dialog( "close" );
+               char['stats']= editor.get()
+               $.post( surl+"/modify", {'id':cid, 'json':JSON.stringify(char)},function( data ) {
+                 console.log('modified')
+                 redraw(data)
+               });
+             }
+           } ] )
+        jsondialog.dialog( "open" );
+    });
+    $( "#editchar" ).on( "click", function() {
       $( "#json" ).val(JSON.stringify(char, null, 2))
       editor.set(char)
       jsondialog.dialog("option", "buttons", [ {
