@@ -42,7 +42,7 @@ function addBlock (id, func, def) {
                 s+='<td >'+def+'</td>'
             }
         }
-        $('#'+id).append('<tr added="'+id+'"  bot="!team '+k.replace(' ','_')+'"><th>'+k+'</th>'+s+'</tr>')
+        $('#'+id).append('<tr added="'+id+'"><th  bot="!team '+k.replace(' ','_')+'">'+k+'</th>'+s+'</tr>')
     })
 
 }
