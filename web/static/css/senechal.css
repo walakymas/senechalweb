@@ -213,25 +213,45 @@ table.stats td {
 	width: 100%;
 }
 
-#team thead th {
+.name {
+    padding-top: 5px;
+}
+
+.team_ thead th {
   position: sticky;
   top: 0;
   z-index: 1;
   background-color: black;
 }
 
-#team td {
-    min-width: 80px;
+.team td {
     text-align: center;
 }
 
-#team tbody tr:nth-child(2n+3) {
+.team tbody tr:nth-child(2n+3) {
     background-color: #333
 }
 
+table.team {
+    width: 100%;
+//    table-layout: fixed;
+}
+
+/* defining column widths */
+#teamdiv .col-1 {width: 50%;}
+#teamdiv .col-2 {width: 100%;}
+
+[class*="col-"] {
+  float: left;
+  padding: 15px;
+}
+
+.row {margin: 0% auto; max-width:1200px;}
+
+
 #teamdiv {
   width: 100%;
-  max-height: 500px;
-  overflow: auto;
-
+  max-height_: 500px;
+  overflow_: auto;
 }
+
